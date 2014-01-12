@@ -20,7 +20,11 @@ tenure.frame    <- Data_tenure_lad
 unemp.frame     <- Data_unemployed_economicallyactive_engwal_LADs
 car.frame       <- Data_CARVAN_UNIT
 
-ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + geom_density()
-ggplot(tenure.frame, aes(tenure.frame$pcNotOO)) + geom_density()
-ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) + geom_density()
-ggplot(car.frame, aes(car.frame$pcNoCar)) + geom_density()
+ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + geom_density() + ggtitle("Density plot of overcrowding") + xlab("Percent of households overcrowded")
+
+ggplot(tenure.frame, aes(tenure.frame$pcNotOO)) + geom_density() + ggtitle("Density plot of tenure") + xlab("Percent of households not owner occupied")
+
+ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) + geom_density() + ggtitle("Density plot of unemployment") + xlab("Percent of individuals economically active who are unemployed")
+
+ggplot(car.frame, aes(car.frame$pcNoCar)) + geom_density() + ggtitle("Density plot of car ownership") + xlab("Percent of households who do not own a car")
+

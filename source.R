@@ -36,3 +36,12 @@ ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) + geom_density() + ggtitle("
 
 ggplot(car.frame, aes(car.frame$pcNoCar)) + geom_density() + ggtitle("Density plot of car ownership") + xlab("Percent of households who do not own a car")
 
+# Transformations ====
+# Townsend et al used y = log(x + 1)
+
+# Overcrowding
+logOvercrowding <- log(overcrowd.frame$pcGt1PPerRoom + 1)
+ggplot(overcrowd.frame, aes(logOvercrowding)) + geom_density()
+
+sqrtOvercrowding <- sqrt(overcrowd.frame$pcGt1PPerRoom + 1)
+ggplot(overcrowd.frame, aes(sqrtOvercrowding)) + geom_density()

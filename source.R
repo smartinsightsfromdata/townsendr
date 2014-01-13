@@ -54,7 +54,7 @@ ggplot(car.frame, aes(logCarOwn)) + geom_density() + stat_function(fun = dnorm, 
 
 require(gridExtra)
 plot1 <- ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + 
-  geom_density() + ggtitle("Density plot of overcrowding") + 
+  geom_density() + ggtitle("Density plot of overcrowding (x)") + 
   xlab("Percent of households overcrowded") + 
   stat_function(fun = dnorm, 
                 args = list(mean = mean(overcrowd.frame$pcGt1PPerRoom, na.rm = T), 
@@ -65,7 +65,7 @@ plot2 <- ggplot(overcrowd.frame, aes(sample = overcrowd.frame$pcGt1PPerRoom)) +
   ggtitle("Overcrowding: original")
 plot3 <- ggplot(overcrowd.frame, aes(logOvercrowding)) +
   geom_density() +
-  ggtitle("Density plot of overcrowding transformed with y = ln(x + 1)") +
+  ggtitle("Density plot of y = ln(x + 1)") +
   stat_function(fun = dnorm, 
                 args = list(mean = mean(logOvercrowding, na.rm = T), 
                             sd = sd(logOvercrowding, na.rm = T)))  
@@ -75,7 +75,7 @@ plot4 <- ggplot(overcrowd.frame, aes(sample = logOvercrowding)) +
   ggtitle("Overcrowding: y = ln(x + 1)")
 plot5 <- ggplot(overcrowd.frame, aes(sqrtOvercrowding)) +
   geom_density() +
-  ggtitle("Density plot of overcrowding transformed with y = sqrt(x + 1)") +
+  ggtitle("Density plot of y = sqrt(x + 1)") +
   stat_function(fun = dnorm, 
                 args = list(mean = mean(sqrtOvercrowding, na.rm = T), 
                             sd = sd(sqrtOvercrowding, na.rm = T)))  

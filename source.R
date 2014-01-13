@@ -1,6 +1,7 @@
 # Libraries ====
 
 library(ggplot2)
+library(gridExtra)
 
 # Prepare Data ====
 
@@ -40,6 +41,16 @@ ggplot(car.frame, aes(logCarOwn)) + geom_density() + stat_function(fun = dnorm, 
 # QQ Plots ====
 
 # QQ plots to check the normality of the distributions. Linear = good
+
+require(gridExtra)
+plot1 <- ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + geom_density() + ggtitle("Density plot of overcrowding") + xlab("Percent of households overcrowded") + stat_function(fun = dnorm, args = list(mean = mean(overcrowd.frame$pcGt1PPerRoom, na.rm = T), sd = sd(overcrowd.frame$pcGt1PPerRoom, na.rm = T)))
+plot2 <- ggplot(overcrowd.frame, aes(sample = overcrowd.frame$pcGt1PPerRoom)) + stat_qq()
+plot3 <- ggplot(overcrowd.frame, aes(sample = logOvercrowding)) + stat_qq()
+plot4 <- ggplot(overcrowd.frame, aes(sample = sqrtOvercrowding)) + stat_qq()
+grid.arrange(plot1, plot2, plot3, plot4,
+             ncol = 2)
+rm(plot1, plot2, plot3, plot4)
+
 
 ggplot(overcrowd.frame, aes(sample = logOvercrowding)) + stat_qq()
 ggplot(overcrowd.frame, aes(sample = sqrtOvercrowding)) + stat_qq()

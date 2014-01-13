@@ -112,11 +112,28 @@ grid.arrange(plot1, plot2, plot3, plot4,
              main = "Tenure")
 rm(plot1, plot2, plot3, plot4)
 
-ggplot(overcrowd.frame, aes(sample = logOvercrowding)) + stat_qq()
-ggplot(overcrowd.frame, aes(sample = sqrtOvercrowding)) + stat_qq()
+require(gridExtra)
+plot1 <- ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) +
+  geom_density() + 
+  stat_function(fun = dnorm, args = list(mean = mean(unemp.frame$pcEconActUnem, na.rm = T), sd = sd(unemp.frame$pcEconActUnem, na.rm = T))) +
+  ggtitle("Density plot of Unemployment")
+plot2 <- ggplot(unemp.frame, aes(sample = unemp.frame$pcEconActUnem)) +
+  stat_qq() +
+  ggtitle("Unemployment: original")
+grid.arrange(plot1, plot2,
+             ncol = 2,
+             main = "Unemployment")
+rm(plot1, plot2)
 
-ggplot(tenure.frame, aes(sample = tenure.frame$pcNotOO)) + stat_qq()
-
-ggplot(unemp.frame, aes(sample = unemp.frame$pcEconActUnem)) + stat_qq()
-
-ggplot(car.frame, aes(sample = car.frame$pcNoCar)) + stat_qq()
+require(gridExtra)
+plot1 <- ggplot(car.frame, aes(car.frame$pcNoCar)) +
+  geom_density() +
+  stat_function(fun = dnorm, args = list(mean = mean(car.frame$pcNoCar, na.rm = T), sd = sd(car.frame$pcNoCar, na.rm = T))) +
+  ggtitle("Car Ownership Density")
+plot2 <- ggplot(car.frame, aes(sample = car.frame$pcNoCar)) +
+  stat_qq() +
+  ggtitle("Car Ownership: original")
+grid.arrange(plot1, plot2,
+             ncol = 2,
+             main = "Car Ownership")
+rm(plot1, plot2)

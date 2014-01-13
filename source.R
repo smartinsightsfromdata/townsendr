@@ -1,22 +1,3 @@
-# Purpose ====
-
-# This R script is to prepare the Census data:
-# 1. Check and if necessary transform the data so that it can be used
-# 2. Convert the four domains in to z-scores so they can be combined
-# 3. Combine the z-scores to form one overall index
-
-# License ====
-
-# The code is GPL v3 license. See LICENSE.txt.
-# Because the data is from the UK Census it is protected by Crown Copyright.
-# See census-copyright.txt
-
-# References ====
-
-# Office for National Statistics, 2011 Census: Aggregate data (England and Wales) [computer file]. UK Data Service Census Support. Downloaded from: http://infuse.mimas.ac.uk. This information is licensed under the terms of the Open Government Licence [http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2].
-
-# Office for National Statistics, 2011 Census: Digitised Boundary Data (England and Wales) [computer file]. UK Data Service Census Support. Downloaded from: http://edina.ac.uk/census
-
 # Libraries ====
 
 library(ggplot2)
@@ -28,20 +9,43 @@ tenure.frame    <- Data_tenure_lad
 unemp.frame     <- Data_unemployed_economicallyactive_engwal_LADs
 car.frame       <- Data_CARVAN_UNIT
 
-ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + geom_density() + ggtitle("Density plot of overcrowding") + xlab("Percent of households overcrowded")
+ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + geom_density() + ggtitle("Density plot of overcrowding") + xlab("Percent of households overcrowded") + stat_function(fun = dnorm, args = list(mean = mean(overcrowd.frame$pcGt1PPerRoom, na.rm = T), sd = sd(overcrowd.frame$pcGt1PPerRoom, na.rm = T)))
 
-ggplot(tenure.frame, aes(tenure.frame$pcNotOO)) + geom_density() + ggtitle("Density plot of tenure") + xlab("Percent of households not owner occupied")
+ggplot(tenure.frame, aes(tenure.frame$pcNotOO)) + geom_density() + ggtitle("Density plot of tenure") + xlab("Percent of households not owner occupied") + stat_function(fun = dnorm, args = list(mean = mean(tenure.frame$pcNotOO, na.rm = T), sd = sd(tenure.frame$pcNotOO, na.rm = T)))
 
-ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) + geom_density() + ggtitle("Density plot of unemployment") + xlab("Percent of individuals economically active who are unemployed")
 
-ggplot(car.frame, aes(car.frame$pcNoCar)) + geom_density() + ggtitle("Density plot of car ownership") + xlab("Percent of households who do not own a car")
+ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) + geom_density() + ggtitle("Density plot of unemployment") + xlab("Percent of individuals economically active who are unemployed") + stat_function(fun = dnorm, args = list(mean = mean(unemp.frame$pcEconActUnem, na.rm = T), sd = sd(unemp.frame$pcEconActUnem, na.rm = T)))
+
+ggplot(car.frame, aes(car.frame$pcNoCar)) + geom_density() + ggtitle("Density plot of car ownership") + xlab("Percent of households who do not own a car") + stat_function(fun = dnorm, args = list(mean = mean(car.frame$pcNoCar, na.rm = T), sd = sd(car.frame$pcNoCar, na.rm = T)))
 
 # Transformations ====
 # Townsend et al used y = log(x + 1)
 
 # Overcrowding
 logOvercrowding <- log(overcrowd.frame$pcGt1PPerRoom + 1)
-ggplot(overcrowd.frame, aes(logOvercrowding)) + geom_density()
+ggplot(overcrowd.frame, aes(logOvercrowding)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(logOvercrowding, na.rm = T), sd = sd(logOvercrowding, na.rm = T)))
 
 sqrtOvercrowding <- sqrt(overcrowd.frame$pcGt1PPerRoom + 1)
-ggplot(overcrowd.frame, aes(sqrtOvercrowding)) + geom_density()
+ggplot(overcrowd.frame, aes(sqrtOvercrowding)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(sqrtOvercrowding, na.rm = T), sd = sd(sqrtOvercrowding, na.rm = T)))
+
+# Natural log transformation of overcrowding is better, go with that.
+
+# Car Ownership
+
+logCarOwn <- log(car.frame$pcNoCar + 1)
+ggplot(car.frame, aes(logCarOwn)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(logCarOwn, na.rm = T), sd = sd(logCarOwn, na.rm = T)))
+
+# Natural log transformation of car ownership looks good.
+
+# QQ Plots ====
+
+# QQ plots to check the normality of the distributions. Linear = good
+
+ggplot(overcrowd.frame, aes(sample = logOvercrowding)) + stat_qq()
+ggplot(overcrowd.frame, aes(sample = sqrtOvercrowding)) + stat_qq()
+
+ggplot(tenure.frame, aes(sample = tenure.frame$pcNotOO)) + stat_qq()
+
+ggplot(unemp.frame, aes(sample = unemp.frame$pcEconActUnem)) + stat_qq()
+
+ggplot(car.frame, aes(sample = car.frame$pcNoCar)) + stat_qq()

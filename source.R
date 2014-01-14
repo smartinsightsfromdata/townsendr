@@ -148,3 +148,4 @@ grid.arrange(plot1, plot2, plot3, plot4,
 rm(plot1, plot2, plot3, plot4)
 # Use the log transformation
 
+# Z-scores

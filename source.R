@@ -128,12 +128,23 @@ rm(plot1, plot2)
 require(gridExtra)
 plot1 <- ggplot(car.frame, aes(car.frame$pcNoCar)) +
   geom_density() +
-  stat_function(fun = dnorm, args = list(mean = mean(car.frame$pcNoCar, na.rm = T), sd = sd(car.frame$pcNoCar, na.rm = T))) +
+  stat_function(fun = dnorm, args = list(mean = mean(car.frame$pcNoCar, na.rm = T), 
+                                         sd = sd(car.frame$pcNoCar, na.rm = T))) +
   ggtitle("Car Ownership Density")
 plot2 <- ggplot(car.frame, aes(sample = car.frame$pcNoCar)) +
   stat_qq() +
-  ggtitle("Car Ownership: original")
-grid.arrange(plot1, plot2,
+  ggtitle("Car Ownership (x): original")
+plot3 <- ggplot(car.frame, aes(logCarOwn)) +
+  geom_density() +
+  stat_function(fun = dnorm, args = list(mean = mean(logCarOwn, na.rm = T),
+                                         sd = sd(logCarOwn, na.rm = T))) +
+  ggtitle("y = ln(x + 1)")
+plot4 <- ggplot(car.frame, aes(sample = logCarOwn)) +
+  stat_qq() +
+  ggtitle("Car Ownership: y = ln(x + 1) qq plot")
+grid.arrange(plot1, plot2, plot3, plot4,
              ncol = 2,
              main = "Car Ownership")
-rm(plot1, plot2)
+rm(plot1, plot2, plot3, plot4)
+# Use the log transformation
+

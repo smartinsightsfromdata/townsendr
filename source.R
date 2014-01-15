@@ -148,4 +148,14 @@ grid.arrange(plot1, plot2, plot3, plot4,
 rm(plot1, plot2, plot3, plot4)
 # Use the log transformation
 
-# Z-scores
+# Z-scores ====
+
+zOvercrowd <- scale(logOvercrowding, center = T, scale = T)
+zTenure    <- scale(logTenure, center = T, scale = T)
+zUnemp     <- scale(unemp.frame$pcEconActUnem, center = T, scale = T)
+zCar       <- scale(logCarOwn, center = T, scale = T)
+
+merged <- merge(overcrowd.frame, tenure.frame, by.x = "GEOCODE", by.y = "GEOCODE")
+merged <- merge(merged, unemp.frame, by.x = "GEOCODE", by.y = "GEOCODE")
+merged <- merge(merged, car.frame, by.x = "GEOCODE", by.y = "GEOCODE")
+write.csv(merged, file="master.csv")

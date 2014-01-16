@@ -177,4 +177,15 @@ overcrowd$zOvercrowd <- scale(logOvercrowding, center = T, scale = T)
 tenure$zTenure       <- scale(logTenure,       center = T, scale = T)
 unemp$zUnemp         <- scale(logUnemp,        center = T, scale = T)
 
+master  <- merge.data.frame(car, overcrowd, by.x = "GEOCODE", by.y = "GEOCODE")
+master  <- merge.data.frame(master, tenure, by.x = "GEOCODE", by.y = "GEOCODE")
+master  <- merge.data.frame(master, unemp,  by.x = "GEOCODE", by.y = "GEOCODE")
+master  <- subset(master, select = c(GEOCODE,
+                                     zCar,
+                                     zOvercrowd,
+                                     zTenure,
+                                     zUnemp))
+# Combine z-scores in to one score
 
+
+write.csv(master, file = "master.csv")

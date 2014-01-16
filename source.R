@@ -172,3 +172,9 @@ rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 # Z-scores ====
 
+car$zCar             <- scale(logCar,          center = T, scale = T)
+overcrowd$zOvercrowd <- scale(logOvercrowding, center = T, scale = T)
+tenure$zTenure       <- scale(logTenure,       center = T, scale = T)
+unemp$zUnemp         <- scale(logUnemp,        center = T, scale = T)
+
+

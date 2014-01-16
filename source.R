@@ -3,167 +3,172 @@
 library(ggplot2)
 library(gridExtra) # For panelling ggplots
 
-# Read data frames ====
-
-
-
 # Prepare Data ====
 
-overcrowd.frame <- Data_personsperroom_englandwales_LADs
-tenure.frame    <- Data_tenure_lad
-unemp.frame     <- Data_unemployed_economicallyactive_engwal_LADs
-car.frame       <- Data_CARVAN_UNIT
+car       <- read.csv("Data_CARVAN_UNIT.csv")
+overcrowd <- read.csv("Data_personsperroom_englandwales_LADs.csv")
+tenure    <- read.csv("Data_tenure_lad.csv")
+unemp     <- read.csv("Data_unemployed_economicallyactive_engwal_LADs.csv")
 
-ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + geom_density() + ggtitle("Density plot of overcrowding") + xlab("Percent of households overcrowded") + stat_function(fun = dnorm, args = list(mean = mean(overcrowd.frame$pcGt1PPerRoom, na.rm = T), sd = sd(overcrowd.frame$pcGt1PPerRoom, na.rm = T)))
-# Needs transforming. See later section.
+# Check plots are (para)normal ====
 
-ggplot(tenure.frame, aes(tenure.frame$pcNotOO)) + geom_density() + ggtitle("Density plot of tenure") + xlab("Percent of households not owner occupied") + stat_function(fun = dnorm, args = list(mean = mean(tenure.frame$pcNotOO, na.rm = T), sd = sd(tenure.frame$pcNotOO, na.rm = T)))
-# Might need transforming. See later section.
+# Make log and sqrt versions of each variable
+# Z-scores don't require normal dist of variable, but Townsend et al. did it, so...
 
-ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) + geom_density() + ggtitle("Density plot of unemployment") + xlab("Percent of individuals economically active who are unemployed") + stat_function(fun = dnorm, args = list(mean = mean(unemp.frame$pcEconActUnem, na.rm = T), sd = sd(unemp.frame$pcEconActUnem, na.rm = T)))
-# Probably ok. Townsend et al. transformed this in 1988, but probably had a different distribution!
+logOvercrowding  <- log(overcrowd$pcGt1PPerRoom + 1)
+sqrtOvercrowding <- sqrt(overcrowd$pcGt1PPerRoom + 1)
 
-ggplot(car.frame, aes(car.frame$pcNoCar)) + geom_density() + ggtitle("Density plot of car ownership") + xlab("Percent of households who do not own a car") + stat_function(fun = dnorm, args = list(mean = mean(car.frame$pcNoCar, na.rm = T), sd = sd(car.frame$pcNoCar, na.rm = T)))
-# Probably need transforming.
+logTenure        <- log(tenure$pcNotOO)       # tenure doesn't need +1 because min > 1
+sqrtTenure       <- sqrt(tenure$pcNotOO)
 
-# Transformations ====
-# Townsend et al used y = log(x + 1). Try that first.
+logUnemp         <- log(unemp$pcEconActUnem)  # unemp doesn't need +1 because min > 1
+sqrtUnemp        <- sqrt(unemp$pcEconActUnem)
 
-# Overcrowding
-logOvercrowding <- log(overcrowd.frame$pcGt1PPerRoom + 1)
-ggplot(overcrowd.frame, aes(logOvercrowding)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(logOvercrowding, na.rm = T), sd = sd(logOvercrowding, na.rm = T)))
+logCar           <- log(car$pcNoCar)          # car doesn't need +1 because min > 1
+sqrtCar          <- sqrt(car$pcNoCar)
 
-sqrtOvercrowding <- sqrt(overcrowd.frame$pcGt1PPerRoom + 1)
-ggplot(overcrowd.frame, aes(sqrtOvercrowding)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(sqrtOvercrowding, na.rm = T), sd = sd(sqrtOvercrowding, na.rm = T)))
-
-# Natural log transformation of overcrowding is better, go with that.
-
-# Tenure
-logTenure <- log(tenure.frame$pcNotOO)
-ggplot(tenure.frame, aes(logTenure)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(logTenure, na.rm = T), sd = sd(logTenure, na.rm = T)))
-# Not a bad little distribution.
-
-# Unemployment
-# Doesn't need transforming.
-
-# Car Ownership
-
-logCarOwn <- log(car.frame$pcNoCar + 1)
-ggplot(car.frame, aes(logCarOwn)) + geom_density() + stat_function(fun = dnorm, args = list(mean = mean(logCarOwn, na.rm = T), sd = sd(logCarOwn, na.rm = T)))
-# Looking pretty normal.
-
-# QQ Plots ====
-
+# Plot each varaible as density and qq plot in the following order: untransformed, log, sqrt
 # QQ plots to check the normality of the distributions. Linear = good
 
+# overcrowd
+
 require(gridExtra)
-plot1 <- ggplot(overcrowd.frame, aes(overcrowd.frame$pcGt1PPerRoom)) + 
-  geom_density() + ggtitle("Density plot of overcrowding (x)") + 
+plot1 <- ggplot(overcrowd, aes(overcrowd$pcGt1PPerRoom)) + 
+  geom_density() + 
+  ggtitle("Density: original (x)") + 
   xlab("Percent of households overcrowded") + 
   stat_function(fun = dnorm, 
-                args = list(mean = mean(overcrowd.frame$pcGt1PPerRoom, na.rm = T), 
-                            sd = sd(overcrowd.frame$pcGt1PPerRoom, na.rm = T)))
-plot2 <- ggplot(overcrowd.frame, aes(sample = overcrowd.frame$pcGt1PPerRoom)) + 
+                args = list(mean = mean(overcrowd$pcGt1PPerRoom, na.rm = T), 
+                            sd = sd(overcrowd$pcGt1PPerRoom, na.rm = T)))
+plot2 <- ggplot(overcrowd, aes(sample = overcrowd$pcGt1PPerRoom)) + 
   stat_qq() + 
   ylim(c(0, 15)) + 
-  ggtitle("Overcrowding: original")
-plot3 <- ggplot(overcrowd.frame, aes(logOvercrowding)) +
+  ggtitle("QQ: original")
+plot3 <- ggplot(overcrowd, aes(logOvercrowding)) +
   geom_density() +
-  ggtitle("Density plot of y = ln(x + 1)") +
+  ggtitle("Density: y = ln(x + 1)") +
   stat_function(fun = dnorm, 
                 args = list(mean = mean(logOvercrowding, na.rm = T), 
                             sd = sd(logOvercrowding, na.rm = T)))  
-plot4 <- ggplot(overcrowd.frame, aes(sample = logOvercrowding)) + 
+plot4 <- ggplot(overcrowd, aes(sample = logOvercrowding)) + 
   stat_qq() + 
   ylim(c(0, 15)) + 
-  ggtitle("Overcrowding: y = ln(x + 1)")
-plot5 <- ggplot(overcrowd.frame, aes(sqrtOvercrowding)) +
+  ggtitle("QQ: y = ln(x + 1)")
+plot5 <- ggplot(overcrowd, aes(sqrtOvercrowding)) +
   geom_density() +
-  ggtitle("Density plot of y = sqrt(x + 1)") +
+  ggtitle("Density: y = sqrt(x + 1)") +
   stat_function(fun = dnorm, 
                 args = list(mean = mean(sqrtOvercrowding, na.rm = T), 
                             sd = sd(sqrtOvercrowding, na.rm = T)))  
-plot6 <- ggplot(overcrowd.frame, aes(sample = sqrtOvercrowding)) + 
+plot6 <- ggplot(overcrowd, aes(sample = sqrtOvercrowding)) + 
   stat_qq() + 
   ylim(c(0, 15)) + 
-  ggtitle("Overcrowding: y = sqrt(x + 1)")
+  ggtitle("QQ: y = sqrt(x + 1)")
 grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
              ncol = 2,
              main = "Overcrowding")
+dev.copy2pdf(file = "overcrowd-normal.pdf", width = 8.27, height = 11.69)
+dev.off()
 rm(plot1, plot2, plot3, plot4, plot5, plot6)
-# Definitely natural log transformation
 
+# tenure
 require(gridExtra)
-plot1 <- ggplot(tenure.frame, aes(tenure.frame$pcNotOO)) +
+plot1 <- ggplot(tenure, aes(tenure$pcNotOO)) +
   geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(tenure.frame$pcNotOO, na.rm = T), 
-                                           sd = sd(tenure.frame$pcNotOO, na.rm = T))) +
-  ggtitle("Density plot of tenure")
-plot2 <- ggplot(tenure.frame, aes(sample = tenure.frame$pcNotOO)) +
+  stat_function(fun = dnorm, args = list(mean = mean(tenure$pcNotOO, na.rm = T), 
+                                           sd = sd(tenure$pcNotOO, na.rm = T))) +
+  ggtitle("Density: original (x)") +
+  xlab("Percentage of households not owner occupied")
+plot2 <- ggplot(tenure, aes(sample = tenure$pcNotOO)) +
   stat_qq() +
-  ggtitle("Tenure: original")
-plot3 <- ggplot(tenure.frame, aes(logTenure)) + 
+  ggtitle("QQ:original (x)")
+plot3 <- ggplot(tenure, aes(logTenure)) + 
   geom_density() +
   stat_function(fun = dnorm, args = list(mean = mean(logTenure, na.rm = T),
                                          sd = sd(logTenure, na.rm = T))) +
-  ggtitle("Density plot of density transformed by y = ln(x + 1)")
-plot4 <- ggplot(tenure.frame, aes(sample = logTenure)) +
+  ggtitle("Density: y = ln(x)")
+plot4 <- ggplot(tenure, aes(sample = logTenure)) +
   stat_qq() +
-  ggtitle("Tenure: y = ln(x)")
-
-grid.arrange(plot1, plot2, plot3, plot4,
+  ggtitle("QQ: y = ln(x)")
+plot5 <- ggplot(tenure, aes(sqrtTenure)) + 
+  geom_density() +
+  stat_function(fun = dnorm, args = list(mean = mean(sqrtTenure, na.rm = T),
+                                         sd = sd(sqrtTenure, na.rm = T))) +
+  ggtitle("Density: y = ln(x)")
+plot6 <- ggplot(tenure, aes(sample = logTenure)) +
+  stat_qq() +
+  ggtitle("QQ: y = ln(x)")
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
              ncol = 2,
              main = "Tenure")
-rm(plot1, plot2, plot3, plot4)
+dev.copy2pdf(file = "tenure-normal.pdf", width = 8.27, height = 11.69)
+dev.off()
+rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 require(gridExtra)
-plot1 <- ggplot(unemp.frame, aes(unemp.frame$pcEconActUnem)) +
+plot1 <- ggplot(unemp, aes(unemp$pcEconActUnem)) +
   geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(unemp.frame$pcEconActUnem, na.rm = T), sd = sd(unemp.frame$pcEconActUnem, na.rm = T))) +
-  ggtitle("Density plot of Unemployment")
-plot2 <- ggplot(unemp.frame, aes(sample = unemp.frame$pcEconActUnem)) +
+  stat_function(fun = dnorm, args = list(mean = mean(unemp$pcEconActUnem, na.rm = T), sd = sd(unemp$pcEconActUnem, na.rm = T))) +
+  ggtitle("Density: original") +
+  xlab("Percent of individuals unemployed who are eligible")
+plot2 <- ggplot(unemp, aes(sample = unemp$pcEconActUnem)) +
   stat_qq() +
-  ggtitle("Unemployment: original")
-grid.arrange(plot1, plot2,
+  ggtitle("QQ: original")
+plot3 <- ggplot(unemp, aes(logUnemp)) +
+  geom_density() + 
+  stat_function(fun = dnorm, args = list(mean = mean(logUnemp, na.rm = T), 
+                                         sd = sd(logUnemp, na.rm = T))) +
+  ggtitle("Density: y = ln(x)")
+plot4 <- ggplot(unemp, aes(sample = logUnemp)) +
+  stat_qq() +
+  ggtitle("QQ: y = ln(x)")
+plot5 <- ggplot(unemp, aes(sqrtUnemp)) +
+  geom_density() + 
+  stat_function(fun = dnorm, args = list(mean = mean(sqrtUnemp, na.rm = T), 
+                                         sd = sd(sqrtUnemp, na.rm = T))) +
+  ggtitle("Density: y = sqrt(x)")
+plot6 <- ggplot(unemp, aes(sample = sqrtUnemp)) +
+  stat_qq() +
+  ggtitle("QQ: y = sqrt(x)")
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
              ncol = 2,
              main = "Unemployment")
-rm(plot1, plot2)
+dev.copy2pdf(file = "unemp-normal.pdf", width = 8.27, height = 11.69)
+dev.off()
+rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 require(gridExtra)
-plot1 <- ggplot(car.frame, aes(car.frame$pcNoCar)) +
-  geom_density() +
-  stat_function(fun = dnorm, args = list(mean = mean(car.frame$pcNoCar, na.rm = T), 
-                                         sd = sd(car.frame$pcNoCar, na.rm = T))) +
-  ggtitle("Car Ownership Density")
-plot2 <- ggplot(car.frame, aes(sample = car.frame$pcNoCar)) +
+plot1 <- ggplot(car, aes(car$pcNoCar)) +
+  geom_density() + 
+  stat_function(fun = dnorm, args = list(mean = mean(car$pcNoCar, na.rm = T), 
+                                         sd = sd(car$pcNoCar, na.rm = T))) +
+  ggtitle("Density: original") +
+  xlab("Percent of households without a car")
+plot2 <- ggplot(car, aes(sample = car$pcNoCar)) +
   stat_qq() +
-  ggtitle("Car Ownership (x): original")
-plot3 <- ggplot(car.frame, aes(logCarOwn)) +
-  geom_density() +
-  stat_function(fun = dnorm, args = list(mean = mean(logCarOwn, na.rm = T),
-                                         sd = sd(logCarOwn, na.rm = T))) +
-  ggtitle("y = ln(x + 1)")
-plot4 <- ggplot(car.frame, aes(sample = logCarOwn)) +
+  ggtitle("QQ: original")
+plot3 <- ggplot(car, aes(logCar)) +
+  geom_density() + 
+  stat_function(fun = dnorm, args = list(mean = mean(logCar, na.rm = T), 
+                                         sd = sd(logCar, na.rm = T))) +
+  ggtitle("Density: y = ln(x)")
+plot4 <- ggplot(car, aes(sample = logCar)) +
   stat_qq() +
-  ggtitle("Car Ownership: y = ln(x + 1) qq plot")
-grid.arrange(plot1, plot2, plot3, plot4,
+  ggtitle("QQ: y = ln(x)")
+plot5 <- ggplot(car, aes(sqrtCar)) +
+  geom_density() + 
+  stat_function(fun = dnorm, args = list(mean = mean(sqrtCar, na.rm = T), 
+                                         sd = sd(sqrtCar, na.rm = T))) +
+  ggtitle("Density: y = sqrt(x)")
+plot6 <- ggplot(car, aes(sample = sqrtCar)) +
+  stat_qq() +
+  ggtitle("QQ: y = sqrt(x)")
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
              ncol = 2,
              main = "Car Ownership")
-rm(plot1, plot2, plot3, plot4)
-# Use the log transformation
+dev.copy2pdf(file = "car-normal.pdf", width = 8.27, height = 11.69)
+dev.off()
+rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 # Z-scores ====
 
-Data_personsperroom_englandwales_LADs$zOvercrowd <- 
-  scale(logOvercrowding, center = T, scale = T)
-Data_tenure_lad$zTenure <- 
-  scale(logTenure, center = T, scale = T)
-Data_unemployed_economicallyactive_engwal_LADs$zUnemp <- 
-  scale(unemp.frame$pcEconActUnem, center = T, scale = T)
-Data_CARVAN_UNIT$zCar <- 
-  scale(logCarOwn, center = T, scale = T)
-
-merged <- merge(overcrowd.frame, tenure.frame, by.x = "GEOCODE", by.y = "GEOCODE")
-merged <- merge(merged, unemp.frame, by.x = "GEOCODE", by.y = "GEOCODE")
-merged <- merge(merged, car.frame, by.x = "GEOCODE", by.y = "GEOCODE")
-write.csv(merged, file="master.csv")

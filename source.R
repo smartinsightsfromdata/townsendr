@@ -1,3 +1,21 @@
+# License ====
+
+# Calculate Townsend Material Deprivation Score from 2011 Census Data in the UK
+# Copyright (C) 2014 Phil Mike Jones
+  
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 # Libraries ====
 
 library(ggplot2)
@@ -172,20 +190,23 @@ rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 # Z-scores ====
 
+# Choose the most normal distribution (i.e. the original, the log or the sqrt transformation)
+
 car$zCar             <- scale(logCar,          center = T, scale = T)
 overcrowd$zOvercrowd <- scale(logOvercrowding, center = T, scale = T)
 tenure$zTenure       <- scale(logTenure,       center = T, scale = T)
 unemp$zUnemp         <- scale(logUnemp,        center = T, scale = T)
 
+# Merge all in to one file
 master  <- merge.data.frame(car, overcrowd, by.x = "GEOCODE", by.y = "GEOCODE")
 master  <- merge.data.frame(master, tenure, by.x = "GEOCODE", by.y = "GEOCODE")
 master  <- merge.data.frame(master, unemp,  by.x = "GEOCODE", by.y = "GEOCODE")
-master  <- subset(master, select = c(GEOCODE,
-                                     zCar,
-                                     zOvercrowd,
-                                     zTenure,
-                                     zUnemp))
+
 # Combine z-scores in to one score
+master$z <- rowSums(subset(master, select = c(zCar, zOvercrowd, zTenure, zUnemp)))
 
+# Drop unnecessary colums
+master  <- subset(master, select = c(GEOCODE, z))
 
+#Output final file
 write.csv(master, file = "master.csv")

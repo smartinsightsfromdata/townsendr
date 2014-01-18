@@ -33,19 +33,20 @@ unemp     <- read.csv("Data_unemployed_economicallyactive_engwal_LADs.csv")
 # Make log and sqrt versions of each variable
 # Z-scores don't require normal dist of variable, but Townsend et al. did it, so...
 
-logOvercrowding  <- log(overcrowd$pcGt1PPerRoom + 1)
-sqrtOvercrowding <- sqrt(overcrowd$pcGt1PPerRoom + 1)
+logOvercrowd  <- log(overcrowd$pcGt1PPerRoom + 1)
+sqrtOvercrowd <- sqrt(overcrowd$pcGt1PPerRoom + 1)
 
-logTenure        <- log(tenure$pcNotOO)       # tenure doesn't need +1 because min > 1
-sqrtTenure       <- sqrt(tenure$pcNotOO)
+logTenure     <- log(tenure$pcNotOO)       # tenure doesn't need +1 because min > 1
+sqrtTenure    <- sqrt(tenure$pcNotOO)
 
-logUnemp         <- log(unemp$pcEconActUnem)  # unemp doesn't need +1 because min > 1
-sqrtUnemp        <- sqrt(unemp$pcEconActUnem)
+logUnemp      <- log(unemp$pcEconActUnem)  # unemp doesn't need +1 because min > 1
+sqrtUnemp     <- sqrt(unemp$pcEconActUnem)
 
-logCar           <- log(car$pcNoCar)          # car doesn't need +1 because min > 1
-sqrtCar          <- sqrt(car$pcNoCar)
+logCar        <- log(car$pcNoCar)          # car doesn't need +1 because min > 1
+sqrtCar       <- sqrt(car$pcNoCar)
 
-# Plot each varaible as density and qq plot in the following order: untransformed, log, sqrt
+# Plot each varaible as density and qq plot in the following order:
+#   untransformed, log, sqrt
 # QQ plots to check the normality of the distributions. Linear = good
 
 # overcrowd
@@ -62,23 +63,23 @@ plot2 <- ggplot(overcrowd, aes(sample = overcrowd$pcGt1PPerRoom)) +
   stat_qq() + 
   ylim(c(0, 15)) + 
   ggtitle("QQ: original")
-plot3 <- ggplot(overcrowd, aes(logOvercrowding)) +
+plot3 <- ggplot(overcrowd, aes(logOvercrowd)) +
   geom_density() +
   ggtitle("Density: y = ln(x + 1)") +
   stat_function(fun = dnorm, 
-                args = list(mean = mean(logOvercrowding, na.rm = T), 
-                            sd = sd(logOvercrowding, na.rm = T)))  
-plot4 <- ggplot(overcrowd, aes(sample = logOvercrowding)) + 
+                args = list(mean = mean(logOvercrowd, na.rm = T), 
+                            sd = sd(logOvercrowd, na.rm = T)))  
+plot4 <- ggplot(overcrowd, aes(sample = logOvercrowd)) + 
   stat_qq() + 
   ylim(c(0, 15)) + 
   ggtitle("QQ: y = ln(x + 1)")
-plot5 <- ggplot(overcrowd, aes(sqrtOvercrowding)) +
+plot5 <- ggplot(overcrowd, aes(sqrtOvercrowd)) +
   geom_density() +
   ggtitle("Density: y = sqrt(x + 1)") +
   stat_function(fun = dnorm, 
-                args = list(mean = mean(sqrtOvercrowding, na.rm = T), 
-                            sd = sd(sqrtOvercrowding, na.rm = T)))  
-plot6 <- ggplot(overcrowd, aes(sample = sqrtOvercrowding)) + 
+                args = list(mean = mean(sqrtOvercrowd, na.rm = T), 
+                            sd = sd(sqrtOvercrowd, na.rm = T)))  
+plot6 <- ggplot(overcrowd, aes(sample = sqrtOvercrowd)) + 
   stat_qq() + 
   ylim(c(0, 15)) + 
   ggtitle("QQ: y = sqrt(x + 1)")
@@ -123,6 +124,7 @@ dev.copy2pdf(file = "tenure-normal.pdf", width = 8.27, height = 11.69)
 dev.off()
 rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
+# Unemp
 require(gridExtra)
 plot1 <- ggplot(unemp, aes(unemp$pcEconActUnem)) +
   geom_density() + 
@@ -155,6 +157,7 @@ dev.copy2pdf(file = "unemp-normal.pdf", width = 8.27, height = 11.69)
 dev.off()
 rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
+# Car ownership
 require(gridExtra)
 plot1 <- ggplot(car, aes(car$pcNoCar)) +
   geom_density() + 
@@ -192,10 +195,10 @@ rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 # Choose the most normal distribution (i.e. the original, the log or the sqrt transformation)
 
-car$zCar             <- scale(logCar,          center = T, scale = T)
-overcrowd$zOvercrowd <- scale(logOvercrowding, center = T, scale = T)
-tenure$zTenure       <- scale(logTenure,       center = T, scale = T)
-unemp$zUnemp         <- scale(logUnemp,        center = T, scale = T)
+car$zCar             <- scale(logCar,       center = T, scale = T)
+overcrowd$zOvercrowd <- scale(logOvercrowd, center = T, scale = T)
+tenure$zTenure       <- scale(logTenure,    center = T, scale = T)
+unemp$zUnemp         <- scale(logUnemp,     center = T, scale = T)
 
 # Merge all in to one file
 master  <- merge.data.frame(car, overcrowd, by.x = "GEOCODE", by.y = "GEOCODE")

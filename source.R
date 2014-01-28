@@ -206,7 +206,7 @@ master  <- merge.data.frame(master, tenure, by.x = "GEOCODE", by.y = "GEOCODE")
 master  <- merge.data.frame(master, unemp,  by.x = "GEOCODE", by.y = "GEOCODE")
 
 # Combine z-scores in to one score
-ztest <- rowSums(master[c("zCar", "zOvercrowd", "zTenure", "zUnemp")])
+master$z <- rowSums(subset(master, select = c(zCar, zOvercrowd, zTenure, zUnemp)))
 
 # Drop unnecessary colums
 master  <- subset(master, select = c(GEOCODE, z))

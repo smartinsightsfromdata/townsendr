@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# Thanks and acknowledgements ====
+
+# Thanks to Robin Lovelace - https://github.com/Robinlovelace - for having
+# a once-over of the script and his suggestions.
+# (Dimitris: he did this after I handed it in for assessment!)
+
 # Libraries ====
 
 library(ggplot2)

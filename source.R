@@ -1,20 +1,20 @@
 # License ====
 
 # Calculate Townsend Material Deprivation Score from 2011 Census Data in the UK
-# Copyright (C) 2014 Phil Mike Jones
+# Copyright (C) 2014 Phil Mike Jones - orcid.org/0000-0001-5173-3245
   
-# This program is free software: you can redistribute it and/or modify
+# This programme is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
-# This program is distributed in the hope that it will be useful,
+# This programme is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# along with this programme. If not, see <http://www.gnu.org/licenses/>.
 
 # Thanks and acknowledgements ====
 

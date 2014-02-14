@@ -16,206 +16,170 @@
 # You should have received a copy of the GNU General Public License
 # along with this programme. If not, see <http://www.gnu.org/licenses/>.
 
+
+
 # Thanks and acknowledgements ====
 
 # Thanks to Robin Lovelace - https://github.com/Robinlovelace - for having
 # a once-over of the script and his suggestions.
 # (Dimitris: he did this after I handed it in for assessment!)
 
+
+
 # Libraries ====
 
 library(ggplot2)
 library(gridExtra) # For panelling ggplots
 
+
+
 # Prepare Data ====
 
-car       <- read.csv("Data_CARVAN_UNIT.csv")
-overcrowd <- read.csv("Data_personsperroom_englandwales_LADs.csv")
-tenure    <- read.csv("Data_tenure_lad.csv")
-unemp     <- read.csv("Data_unemployed_economicallyactive_engwal_LADs.csv")
+# Read in files for car access, persons per room, tenure, and unemp
+# These can be at any geography desired (e.g. LSOA, MSOA, ward, LAD, etc)
 
-# Check plots are (para)normal ====
+# Car Access
+car         <- read.csv("Data_car_engwal_lsoa.csv",
+                 header = F,
+                 skip = 2)
+keep        <- c("V2", "V6", "V7")
+car         <- car[keep]
+rm(keep)
+names(car)  <- c("lsoacode", "allHh", "noCar")
+car$pcNoCar <- 100 * (car$noCar / car$allHh)
+keep        <- c("lsoacode", "pcNoCar")
+car         <- car[keep]
+rm(keep)
 
-# Make log and sqrt versions of each variable
-# Z-scores don't require normal dist of variable, but Townsend et al. did it, so...
+# Overcrowding (more than one person per room)
+overcrowd         <- read.csv("Data_personperroom_engwal_lsoa.csv",
+                      header = F,
+                      skip = 2)
+keep              <- c("V2", "V6", "V9", "V10")
+overcrowd         <- overcrowd[keep]
+rm(keep)
+names(overcrowd)  <- c("lsoacode", "allHh", "ppr1", "ppr15")
+overcrowd$yesOc   <- rowSums(overcrowd[, 3:4])
+overcrowd$pcYesOc <- 100 * (overcrowd$yesOc / overcrowd$allHh)
+keep              <- c("lsoacode", "pcYesOc")
+overcrowd         <- overcrowd[keep]
+rm(keep)
 
-logOvercrowd  <- log(overcrowd$pcGt1PPerRoom + 1)
-sqrtOvercrowd <- sqrt(overcrowd$pcGt1PPerRoom + 1)
+# Tenure (not owner-occupied)
+tenure         <- read.csv("Data_tenure_engwal_lsoa.csv",
+                              header = F,
+                              skip = 2)
+keep           <- c("V2", "V6", "V11", "V12", "V13")
+tenure         <- tenure[keep]
+rm(keep)
+names(tenure)  <- c("lsoacode", "allHh", "socRent", "prvRent", "rentFree")
+tenure$notOo   <- rowSums(tenure[, 3:5])
+tenure$pcNotOo <- 100 * (tenure$notOo / tenure$allHh)
+keep           <- c("lsoacode", "pcNotOo")
+tenure         <- tenure[keep]
+rm(keep)
 
-logTenure     <- log(tenure$pcNotOO)       # tenure doesn't need +1 because min > 1
-sqrtTenure    <- sqrt(tenure$pcNotOO)
+# Economically active unemployed
+unemp     <- read.csv("Data_unemp_engwal_lsoa.csv",
+                      header = F,
+                      skip = 2)
+keep           <- c("V2", "V6", "V7")
+unemp         <- unemp[keep]
+rm(keep)
+names(unemp)  <- c("lsoacode", "unempEa", "allPers")
+unemp$pcUnemp <- 100 * (unemp$unempEa / unemp$allPers)
+keep           <- c("lsoacode", "pcUnemp")
+unemp         <- unemp[keep]
+rm(keep)
 
-logUnemp      <- log(unemp$pcEconActUnem)  # unemp doesn't need +1 because min > 1
-sqrtUnemp     <- sqrt(unemp$pcEconActUnem)
+# Merge file
+master <- merge(car, overcrowd, by = "lsoacode")
+master <- merge(master, tenure, by = "lsoacode")
+master <- merge(master, unemp,  by = "lsoacode")
+View(master)
 
-logCar        <- log(car$pcNoCar)          # car doesn't need +1 because min > 1
-sqrtCar       <- sqrt(car$pcNoCar)
+# Check distributions ====
 
-# Plot each varaible as density and qq plot in the following order:
-#   untransformed, log, sqrt
-# QQ plots to check the normality of the distributions. Linear = good
+# By default the code to check the distributions is commented out.
+# Z-scores can be created from the original distribution, even if it's not ideal
+# Townsend et al (1988) did transform some of the variables.
+# The code is provided to check the distributions if you want to transform.
 
-# overcrowd
+# require(gridExtra)
+# # Plot each varaible as density and qq plot. Linear = good
+# plot1 <- ggplot(master, aes(master$pcNoCar)) +
+#   geom_density() +
+#   ggtitle("Percent of households with no car") +
+#   xlab("Density: car") +
+#   stat_function(fun = dnorm, 
+#                 args = list(mean = mean(master$pcNoCar, na.rm = T), 
+#                             sd = sd(master$pcNoCar, na.rm = T)))
+# plot2 <- ggplot(master, aes(sample = master$pcNoCar)) + 
+#   stat_qq() + 
+#   ggtitle("QQ: car")
+# 
+# plot3 <- ggplot(master, aes(master$pcYesOc)) +
+#   geom_density() +
+#   ggtitle("Percent of households with more than one person per room") +
+#   xlab("Density: overcrowd") +
+#   stat_function(fun = dnorm, 
+#                 args = list(mean = mean(master$pcYesOc, na.rm = T), 
+#                             sd = sd(master$pcYesOc, na.rm = T)))
+# plot4 <- ggplot(master, aes(sample = master$pcYesOc)) + 
+#   stat_qq() + 
+#   ggtitle("QQ: overcrowd")
+# 
+# plot5 <- ggplot(master, aes(master$pcNotOo)) +
+#   geom_density() +
+#   ggtitle("Percent of households not owner-occupied") +
+#   xlab("Density: tenure") +
+#   stat_function(fun = dnorm, 
+#                 args = list(mean = mean(master$pcNotOo, na.rm = T), 
+#                             sd = sd(master$pcNotOo, na.rm = T)))
+# plot6 <- ggplot(master, aes(sample = master$pcNotOo)) + 
+#   stat_qq() + 
+#   ggtitle("QQ: tenure")
+# 
+# plot7 <- ggplot(master, aes(master$pcUnemp)) +
+#   geom_density() +
+#   ggtitle("Percent of individuals economically active unemployed") +
+#   xlab("Density: unemp") +
+#   stat_function(fun = dnorm, 
+#                 args = list(mean = mean(master$pcUnemp, na.rm = T), 
+#                             sd = sd(master$pcUnemp, na.rm = T)))
+# plot8 <- ggplot(master, aes(sample = master$pcUnemp)) + 
+#   stat_qq() + 
+#   ggtitle("QQ: unemp")
+# 
+# grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8,
+#              ncol = 2,
+#              main = "Distributions of Townsend Domains")
+# dev.copy2pdf(file = "check-distributions.pdf", width = 8.27, height = 11.69)
+# dev.off()
+# rm(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8)
 
-require(gridExtra)
-plot1 <- ggplot(overcrowd, aes(overcrowd$pcGt1PPerRoom)) + 
-  geom_density() + 
-  ggtitle("Density: original (x)") + 
-  xlab("Percent of households overcrowded") + 
-  stat_function(fun = dnorm, 
-                args = list(mean = mean(overcrowd$pcGt1PPerRoom, na.rm = T), 
-                            sd = sd(overcrowd$pcGt1PPerRoom, na.rm = T)))
-plot2 <- ggplot(overcrowd, aes(sample = overcrowd$pcGt1PPerRoom)) + 
-  stat_qq() + 
-  ylim(c(0, 15)) + 
-  ggtitle("QQ: original")
-plot3 <- ggplot(overcrowd, aes(logOvercrowd)) +
-  geom_density() +
-  ggtitle("Density: y = ln(x + 1)") +
-  stat_function(fun = dnorm, 
-                args = list(mean = mean(logOvercrowd, na.rm = T), 
-                            sd = sd(logOvercrowd, na.rm = T)))  
-plot4 <- ggplot(overcrowd, aes(sample = logOvercrowd)) + 
-  stat_qq() + 
-  ylim(c(0, 15)) + 
-  ggtitle("QQ: y = ln(x + 1)")
-plot5 <- ggplot(overcrowd, aes(sqrtOvercrowd)) +
-  geom_density() +
-  ggtitle("Density: y = sqrt(x + 1)") +
-  stat_function(fun = dnorm, 
-                args = list(mean = mean(sqrtOvercrowd, na.rm = T), 
-                            sd = sd(sqrtOvercrowd, na.rm = T)))  
-plot6 <- ggplot(overcrowd, aes(sample = sqrtOvercrowd)) + 
-  stat_qq() + 
-  ylim(c(0, 15)) + 
-  ggtitle("QQ: y = sqrt(x + 1)")
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
-             ncol = 2,
-             main = "Overcrowding")
-dev.copy2pdf(file = "overcrowd-normal.pdf", width = 8.27, height = 11.69)
-dev.off()
-rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
-# tenure
-require(gridExtra)
-plot1 <- ggplot(tenure, aes(tenure$pcNotOO)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(tenure$pcNotOO, na.rm = T), 
-                                           sd = sd(tenure$pcNotOO, na.rm = T))) +
-  ggtitle("Density: original (x)") +
-  xlab("Percentage of households not owner occupied")
-plot2 <- ggplot(tenure, aes(sample = tenure$pcNotOO)) +
-  stat_qq() +
-  ggtitle("QQ:original (x)")
-plot3 <- ggplot(tenure, aes(logTenure)) + 
-  geom_density() +
-  stat_function(fun = dnorm, args = list(mean = mean(logTenure, na.rm = T),
-                                         sd = sd(logTenure, na.rm = T))) +
-  ggtitle("Density: y = ln(x)")
-plot4 <- ggplot(tenure, aes(sample = logTenure)) +
-  stat_qq() +
-  ggtitle("QQ: y = ln(x)")
-plot5 <- ggplot(tenure, aes(sqrtTenure)) + 
-  geom_density() +
-  stat_function(fun = dnorm, args = list(mean = mean(sqrtTenure, na.rm = T),
-                                         sd = sd(sqrtTenure, na.rm = T))) +
-  ggtitle("Density: y = ln(x)")
-plot6 <- ggplot(tenure, aes(sample = logTenure)) +
-  stat_qq() +
-  ggtitle("QQ: y = ln(x)")
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
-             ncol = 2,
-             main = "Tenure")
-dev.copy2pdf(file = "tenure-normal.pdf", width = 8.27, height = 11.69)
-dev.off()
-rm(plot1, plot2, plot3, plot4, plot5, plot6)
-
-# Unemp
-require(gridExtra)
-plot1 <- ggplot(unemp, aes(unemp$pcEconActUnem)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(unemp$pcEconActUnem, na.rm = T), sd = sd(unemp$pcEconActUnem, na.rm = T))) +
-  ggtitle("Density: original") +
-  xlab("Percent of individuals unemployed who are eligible")
-plot2 <- ggplot(unemp, aes(sample = unemp$pcEconActUnem)) +
-  stat_qq() +
-  ggtitle("QQ: original")
-plot3 <- ggplot(unemp, aes(logUnemp)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(logUnemp, na.rm = T), 
-                                         sd = sd(logUnemp, na.rm = T))) +
-  ggtitle("Density: y = ln(x)")
-plot4 <- ggplot(unemp, aes(sample = logUnemp)) +
-  stat_qq() +
-  ggtitle("QQ: y = ln(x)")
-plot5 <- ggplot(unemp, aes(sqrtUnemp)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(sqrtUnemp, na.rm = T), 
-                                         sd = sd(sqrtUnemp, na.rm = T))) +
-  ggtitle("Density: y = sqrt(x)")
-plot6 <- ggplot(unemp, aes(sample = sqrtUnemp)) +
-  stat_qq() +
-  ggtitle("QQ: y = sqrt(x)")
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
-             ncol = 2,
-             main = "Unemployment")
-dev.copy2pdf(file = "unemp-normal.pdf", width = 8.27, height = 11.69)
-dev.off()
-rm(plot1, plot2, plot3, plot4, plot5, plot6)
-
-# Car ownership
-require(gridExtra)
-plot1 <- ggplot(car, aes(car$pcNoCar)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(car$pcNoCar, na.rm = T), 
-                                         sd = sd(car$pcNoCar, na.rm = T))) +
-  ggtitle("Density: original") +
-  xlab("Percent of households without a car")
-plot2 <- ggplot(car, aes(sample = car$pcNoCar)) +
-  stat_qq() +
-  ggtitle("QQ: original")
-plot3 <- ggplot(car, aes(logCar)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(logCar, na.rm = T), 
-                                         sd = sd(logCar, na.rm = T))) +
-  ggtitle("Density: y = ln(x)")
-plot4 <- ggplot(car, aes(sample = logCar)) +
-  stat_qq() +
-  ggtitle("QQ: y = ln(x)")
-plot5 <- ggplot(car, aes(sqrtCar)) +
-  geom_density() + 
-  stat_function(fun = dnorm, args = list(mean = mean(sqrtCar, na.rm = T), 
-                                         sd = sd(sqrtCar, na.rm = T))) +
-  ggtitle("Density: y = sqrt(x)")
-plot6 <- ggplot(car, aes(sample = sqrtCar)) +
-  stat_qq() +
-  ggtitle("QQ: y = sqrt(x)")
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
-             ncol = 2,
-             main = "Car Ownership")
-dev.copy2pdf(file = "car-normal.pdf", width = 8.27, height = 11.69)
-dev.off()
-rm(plot1, plot2, plot3, plot4, plot5, plot6)
 
 # Z-scores ====
 
-# Choose the most normal distribution (i.e. the original, the log or the sqrt transformation)
+# Calculate z-score
 
-car$zCar             <- scale(logCar,       center = T, scale = T)
-overcrowd$zOvercrowd <- scale(logOvercrowd, center = T, scale = T)
-tenure$zTenure       <- scale(logTenure,    center = T, scale = T)
-unemp$zUnemp         <- scale(logUnemp,     center = T, scale = T)
+master$zCar       <- scale(master$pcNoCar, center = T, scale = T)
+master$zOvercrowd <- scale(master$pcYesOc, center = T, scale = T)
+master$zTenure    <- scale(master$pcNotOo, center = T, scale = T)
+master$zUnemp     <- scale(master$pcUnemp, center = T, scale = T)
 
-# Merge all in to one file
-master  <- merge.data.frame(car, overcrowd, by.x = "GEOCODE", by.y = "GEOCODE")
-master  <- merge.data.frame(master, tenure, by.x = "GEOCODE", by.y = "GEOCODE")
-master  <- merge.data.frame(master, unemp,  by.x = "GEOCODE", by.y = "GEOCODE")
 
 # Combine z-scores in to one score
-ztest <- rowSums(master[c("zCar", "zOvercrowd", "zTenure", "zUnemp")])
+master$z <- rowSums(master[c("zCar", "zOvercrowd", "zTenure", "zUnemp")])
 
 # Drop unnecessary colums
-master  <- subset(master, select = c(GEOCODE, z))
+keep   <- c("lsoacode", "z")
+master <- master[keep]
+rm(keep)
 
-#Output final file
+
+
+# Output final file ====
+
 write.csv(master, file = "master.csv")

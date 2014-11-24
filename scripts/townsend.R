@@ -189,7 +189,7 @@ land <- c(5.39, 3.595)  # half-page LaTeX A4 body
 elad <- readOGR("shapes/ewlad", "englandWalesLADs")
 proj4string(elad) <- CRS("+init=epsg:27700")
 eladf <- fortify(elad, region = "code")
-eladf <- merge(eladf, elad, by.x = "id", by.y = "code")a
+eladf <- merge(eladf, elad, by.x = "id", by.y = "code")
 eladf <- merge(eladf, master, by.x = "id", by.y = "geography.code")
 ggplot() + 
   geom_polygon(data = eladf, aes(long, lat, group = group, fill = quintile), 
@@ -200,4 +200,4 @@ ggplot() +
                     labels = c("Least deprived quintile", "20-40%", "40-60%", 
                                "60-80%", "Most deprived quintile")) +
   coord_equal() + mapl
-ggsave("maps/td-e-lad.pdf", width = port[1], height = port[2])
+ggsave("maps/td-e-lad.pdf", width = land[1], height = land[2])

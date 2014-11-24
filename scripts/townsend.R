@@ -200,4 +200,4 @@ ggplot() +
                     labels = c("Least deprived quintile", "20-40%", "40-60%", 
                                "60-80%", "Most deprived quintile")) +
   coord_equal() + mapl
-ggsave("maps/td-e-lad.pdf", width = land[1], height = land[2])
+ggsave("maps/townsend-ew-lad.pdf", width = land[1], height = land[2])

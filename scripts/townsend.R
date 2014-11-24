@@ -20,8 +20,10 @@
 
 # Libraries ====
 
-library(ggplot2)
-library(gridExtra) # For panelling ggplots
+require("ggplot2")
+require("gridExtra")  # For panelling ggplots
+require("rgdal")  # for readOGR()
+require("rgeos")
 
 
 
@@ -162,10 +164,40 @@ master$zEau <- scale(master$pceau, center = T, scale = T)
 # Combine z-scores in to one score
 master$z <- rowSums(master[c("zCar", "zOc", "zTen", "zEau")])
 
-# Drop unnecessary colums
+# Drop unnecessary items
 master <- subset(master, select = c("geography.code", "z"))
+rm(car, eau, oc, ten)
+
+# Bin into quintiles
+master$quintile <- cut(master$z, breaks = 5)
 
 
 
-# Output final file ====
-write.csv(master, file = "data/master.csv")
+# Plot results ====
+map <- theme(line = element_blank(), 
+             text = element_blank(), 
+             title = element_blank(),
+             panel.background = element_rect(fill = "transparent"),
+             legend.position = "none")
+mapl <- theme(line = element_blank(),
+              axis.text = element_blank(),
+              axis.title = element_blank(),
+              panel.background = element_rect(fill = "transparent"))
+port  <- c(5.39, 7.19)  # full-page LaTeX A4 body
+land <- c(5.39, 3.595)  # half-page LaTeX A4 body
+
+elad <- readOGR("shapes/eng-lad", "england_lad_2011Polygon")
+proj4string(elad) <- CRS("+init=epsg:27700")
+eladf <- fortify(elad, region = "code")
+eladf <- merge(eladf, elad, by.x = "id", by.y = "code")a
+eladf <- merge(eladf, master, by.x = "id", by.y = "geography.code")
+ggplot() + 
+  geom_polygon(data = eladf, aes(long, lat, group = group, fill = quintile), 
+                        colour = "dark grey") +
+  scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#636363", 
+                               "#252525"),
+                    name = "Townsend Deprivation Quintile",
+                    labels = c("Least deprived quintile", "20-40%", "40-60%", 
+                               "60-80%", "Most deprived quintile")) +
+  coord_equal() + mapl
+ggsave("maps/td-e-lad.pdf", width = port[1], height = port[2])

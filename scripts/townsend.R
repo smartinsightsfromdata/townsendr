@@ -33,64 +33,54 @@ library(gridExtra) # For panelling ggplots
 # http://www.nomisweb.co.uk/census/2011/data_finder
 
 # Car Access
-car <- read.csv("car.csv", header = T)
+car <- read.csv("data/car.csv", header = T)
 car <- subset(car, Rural.Urban == "Total")
-car <- as.data.frame(car)
 car$yesCar <- rowSums(car[, 7:10])
 colnames(car)[5] <- "allHh"
 colnames(car)[6] <- "noCar"
 car$pcNoCar <- (car$noCar / car$allHh) * 100
-keep <- c("geography.code", "allHh", "noCar", "yesCar", "pcNoCar")
-car <- car[keep]
-rm(keep)
-View(car)
+car <- subset(car, select = c("geography.code", "pcNoCar"))
 
 # Overcrowding (more than one person per room (NOT bedroom!))
-oc <- read.csv("oc.csv", header = T)
+oc <- read.csv("data/oc.csv", header = T)
 oc <- subset(oc, Rural.Urban == "Total")
-oc <- as.data.frame(oc)
 oc$yesOc <- rowSums(oc[, 8:9])
 oc$noOc  <- rowSums(oc[, 6:7])
 colnames(oc)[5] <- "allHh"
 oc$pcYesOc <- (oc$yesOc / oc$allHh) * 100
-keep <- c("geography.code", "allHh", "noOc", "yesOc", "pcYesOc")
-oc <- oc[keep]
-rm(keep)
+oc <- subset(oc, select = c("geography.code", "pcYesOc"))
 
 # Tenure (not owner-occupied. Shared ownership not included in O-O)
-tenure <- read.csv("tenure.csv", header = T)
-tenure <- subset(tenure, Rural.Urban == "Total")
-tenure <- as.data.frame(tenure)
-colnames(tenure)[5] <- "allHh"
-colnames(tenure)[6] <- "yesOo" # Does not include shared ownership
-keep <- c("geography.code", "allHh", "yesOo", "Tenure..Shared.ownership..part.owned.and.part.rented...measures..Value", "Tenure..Social.rented..measures..Value", "Tenure..Private.rented..measures..Value", "Tenure..Living.rent.free..measures..Value")
-tenure <- tenure[keep]
-rm(keep)
-tenure$noOo <- rowSums(tenure[, 4:7])
-keep <- c("geography.code", "allHh", "yesOo", "noOo")
-tenure <- tenure[keep]
-rm(keep)
-tenure$pcNoOo <- (tenure$noOo / tenure$allHh) * 100
+ten <- read.csv("data/tenure.csv", header = T)
+ten <- subset(ten, Rural.Urban == "Total")
+colnames(ten)[5] <- "allHh"
+colnames(ten)[6] <- "yesOo" # Does not include shared ownership
+colnames(ten)[9] <- "shared"
+colnames(ten)[10] <- "social"
+colnames(ten)[13] <- "private"
+colnames(ten)[ncol(ten)] <- "free"
+ten <- subset(ten, select = c("geography.code", "allHh", "yesOo", "shared", 
+                               "social", "private", "free"))
+ten$noOo <- rowSums(ten[, 4:7])
+ten$pcNoOo <- (ten$noOo / ten$allHh) * 100
+ten <- subset(ten, select = c("geography.code", "pcNoOo"))
 
 # Economically active unemployed (Census table QS601EW)
-unemp <- read.csv("unemp.csv", header = T)
-unemp <- subset(unemp, Rural.Urban == "Total")
-unemp <- as.data.frame(unemp)
+eau <- read.csv("data/unemp.csv", header = T)
+eau <- subset(eau, Rural.Urban == "Total")
 # Use all econ active residents, NOT all persons (see Townsend 1988: 36)
-colnames(unemp)[6] <- "allEconAct"
-colnames(unemp)[13] <- "yesUnemp"
-unemp$pcUnemp <- (unemp$yesUnemp / unemp$allEconAct) * 100
-keep <- c("geography.code", "allEconAct", "yesUnemp", "pcUnemp")
-unemp <- unemp[keep]
-rm(keep)
+colnames(eau)[6] <- "allEconAct"
+colnames(eau)[13] <- "yesUnemp"
+eau$pceau <- (eau$yesUnemp / eau$allEconAct) * 100
+eau <- subset(eau, select = c("geography.code", "pceau"))
 
-
-
+              
+              
 # Create Master File ====
 
 master <- merge(car, oc, by = "geography.code")
-master <- merge(master, tenure, by = "geography.code")
-master <- merge(master, unemp,  by = "geography.code")
+master <- merge(master, ten, by = "geography.code")
+master <- merge(master, eau,  by = "geography.code")
 
 
 
@@ -164,21 +154,18 @@ master <- merge(master, unemp,  by = "geography.code")
 
 # Calculate z-score
 
-master$zCar       <- scale(master$pcNoCar, center = T, scale = T)
-master$zOvercrowd <- scale(master$pcYesOc, center = T, scale = T)
-master$zTenure    <- scale(master$pcNoOo, center = T, scale = T)
-master$zUnemp     <- scale(master$pcUnemp, center = T, scale = T)
+master$zCar <- scale(master$pcNoCar, center = T, scale = T)
+master$zOc  <- scale(master$pcYesOc, center = T, scale = T)
+master$zTen <- scale(master$pcNoOo, center = T, scale = T)
+master$zEau <- scale(master$pceau, center = T, scale = T)
 
 # Combine z-scores in to one score
-master$z <- rowSums(master[c("zCar", "zOvercrowd", "zTenure", "zUnemp")])
+master$z <- rowSums(master[c("zCar", "zOc", "zTen", "zEau")])
 
 # Drop unnecessary colums
-keep   <- c("geography.code", "z")
-master <- master[keep]
-rm(keep)
+master <- subset(master, select = c("geography.code", "z"))
 
 
 
 # Output final file ====
-
-write.csv(master, file = "master.csv")
+write.csv(master, file = "data/master.csv")

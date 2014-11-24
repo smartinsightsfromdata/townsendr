@@ -186,7 +186,7 @@ mapl <- theme(line = element_blank(),
 port  <- c(5.39, 7.19)  # full-page LaTeX A4 body
 land <- c(5.39, 3.595)  # half-page LaTeX A4 body
 
-elad <- readOGR("shapes/eng-lad", "england_lad_2011Polygon")
+elad <- readOGR("shapes/ewlad", "englandWalesLADs")
 proj4string(elad) <- CRS("+init=epsg:27700")
 eladf <- fortify(elad, region = "code")
 eladf <- merge(eladf, elad, by.x = "id", by.y = "code")a

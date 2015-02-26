@@ -33,15 +33,22 @@ This R script is to prepare the Census data:
 Using the Script
 ================
 
-Copy the script (source.R) to your system.
+[Download the repository as a zip](https://github.com/philmikejones/townsend-depr-score-2011/archive/master.zip) or, if you know what you're doing, make a fork.
 
 You need four data tables, one for each domain of deprivation, at the geographical level you’re interested in (LSOA, Ward, etc.). They’ll probably 
-all be called ‘bulk.csv’ when you download them, so rename these:
+all be called `bulk.csv` when you download them, so rename these:
 
-1. car.csv
-2. oc.csv (overcrowd)
-3. tenure.csv
-4. unemp.csv
+1. `car.csv`
+2. `oc.csv` (overcrowd)
+3. `tenure.csv`
+4. `unemp.csv`
+
+These can be obtained from:
+
+1. [QS416EW](http://www.nomisweb.co.uk/census/2011/qs416ew) (car)
+2. [QS409EW](http://www.nomisweb.co.uk/census/2011/qs409ew) (persons per room)
+3. [QS405EW](http://www.nomisweb.co.uk/census/2011/qs405ew) (tenure)
+4. [QS601EW](http://www.nomisweb.co.uk/census/2011/qs601ew) (unemployment)
 
 I’ve provided four example files from Nomis Web at the LAD (district/unitary) 
 level, which you can use for testing or if this is the geography you want. Additional tables are available from: http://www.nomisweb.co.uk/census/2011/data_finder

@@ -24,11 +24,7 @@ reflect the relative deprivation based on England and Wales.
 Purpose
 ===============
 
-This R script is to prepare the Census data:
-1. Load in Census tables and convert them in to usable form.
-2. Convert the four domains in to z-scores so they can be combined.
-3. Combine the z-scores to form one overall index.
-4. Rank the scores and produce deciles.
+This R script is to prepare the Census data: Load in Census tables and convert them in to usable form; Convert the four domains in to z-scores so they can be combined; Combine the z-scores to form one overall index; and Rank the scores and produce deciles.
 
 Using the Script
 ================

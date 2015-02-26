@@ -51,12 +51,11 @@ These can be obtained from:
 3. [QS405EW](http://www.nomisweb.co.uk/census/2011/qs405ew) (tenure)
 4. [QS601EW](http://www.nomisweb.co.uk/census/2011/qs601ew) (unemployment)
 
-I’ve provided four example files from Nomis Web at the LAD (district/unitary) 
-level, which you can use for testing or if this is the geography you want. Additional tables are available from: http://www.nomisweb.co.uk/census/2011/data_finder
+Place these in the `data` folder.
 
-Place the four data files in the same folder as source.R.
+I’ve provided four example files from Nomis Web at the LAD (district/unitary) level, which you can use for testing or if this is the geography you want.
 
-Run the script file. This should produce one file - master.csv - which contains geography code, overall Townsend Score (z-score), and decile of deprivation for each geography in England and Wales. With the geography code this can then be imported in to GIS software and joined to appropriate Census boundary files.
+Run the script file. This should produce one file - master.csv - which contains geography code, overall Townsend Score (*z*-score), and decile of deprivation for each geography in England and Wales. With the geography code this can then be imported in to GIS software and joined to appropriate Census boundary files.
 
 License
 ===============

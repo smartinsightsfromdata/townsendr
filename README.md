@@ -3,11 +3,10 @@ Introduction
 
 The Townsend Material Deprivation score was originally devised by Townsend et al
 (1988). It is based on the following four Census variables:
-
-	1. Percent of households without access to a car.
-	2. Percent of households with more than one person per room.
-	3. Percent of households not owner-occupied.
-	4. Percent of individuals who are economically active unemployed.
+1. Percent of households without access to a car.
+2. Percent of households with more than one person per room.
+3. Percent of households not owner-occupied.
+4. Percent of individuals who are economically active unemployed.
 
 The four domains above are then combined to produce the overall Townsend Score.
 This score can be calculated for any geographical area that is available in the

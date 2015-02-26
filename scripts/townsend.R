@@ -18,15 +18,6 @@
 
 
 
-# Libraries ====
-
-require("ggplot2")
-require("gridExtra")  # For panelling ggplots
-require("rgdal")  # for readOGR()
-require("rgeos")
-
-
-
 # Prepare Data ====
 
 # Read in files for car access, persons per room, tenure, and unemp
@@ -86,76 +77,9 @@ master <- merge(master, eau,  by = "geography.code")
 
 
 
-# Check distributions ====
-
-# By default the code to check the distributions is commented out.
-# Z-scores don't assume a normal distribution.
-# Townsend et al (1988) transformed unemployment and overcrowding (p. 165).
-# This block is therefore provided if you want to check and transform.
-# It will output a pdf - "check-distributions.pdf" - for inspection.
-
-# require(gridExtra)
-# # Plot each varaible as density and qq plot. Linear = good
-# plot1 <- ggplot(master, aes(master$pcNoCar)) +
-#   geom_density() +
-#   ggtitle("Percent of households with no car") +
-#   xlab("Density: car") +
-#   stat_function(fun = dnorm, 
-#                 args = list(mean = mean(master$pcNoCar, na.rm = T), 
-#                             sd = sd(master$pcNoCar, na.rm = T)))
-# plot2 <- ggplot(master, aes(sample = master$pcNoCar)) + 
-#   stat_qq() + 
-#   ggtitle("QQ: car")
-# 
-# plot3 <- ggplot(master, aes(master$pcYesOc)) +
-#   geom_density() +
-#   ggtitle("Percent of households with more than one person per room") +
-#   xlab("Density: overcrowd") +
-#   stat_function(fun = dnorm, 
-#                 args = list(mean = mean(master$pcYesOc, na.rm = T), 
-#                             sd = sd(master$pcYesOc, na.rm = T)))
-# plot4 <- ggplot(master, aes(sample = master$pcYesOc)) + 
-#   stat_qq() + 
-#   ggtitle("QQ: overcrowd")
-# 
-# plot5 <- ggplot(master, aes(master$pcNoOo)) +
-#   geom_density() +
-#   ggtitle("Percent of households not owner-occupied") +
-#   xlab("Density: tenure") +
-#   stat_function(fun = dnorm, 
-#                 args = list(mean = mean(master$pcNoOo, na.rm = T), 
-#                             sd = sd(master$pcNoOo, na.rm = T)))
-# plot6 <- ggplot(master, aes(sample = master$pcNoOo)) + 
-#   stat_qq() + 
-#   ggtitle("QQ: tenure")
-# 
-# plot7 <- ggplot(master, aes(master$pcUnemp)) +
-#   geom_density() +
-#   ggtitle("Percent of individuals economically active unemployed") +
-#   xlab("Density: unemp") +
-#   stat_function(fun = dnorm, 
-#                 args = list(mean = mean(master$pcUnemp, na.rm = T), 
-#                             sd = sd(master$pcUnemp, na.rm = T)))
-# plot8 <- ggplot(master, aes(sample = master$pcUnemp)) + 
-#   stat_qq() + 
-#   ggtitle("QQ: unemp")
-# 
-# grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8,
-#              ncol = 2,
-#              main = "Distributions of Townsend Domains")
-# dev.copy2pdf(file = "check-distributions.pdf", width = 8.27, height = 11.69)
-# dev.off()
-# rm(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8)
-
-# If you want to transform any of the variables, you could do something like:
-# master$logCar <- log(master$pcNoCar)
-
-
-
 # Z-scores ====
 
 # Calculate z-score
-
 master$zCar <- scale(master$pcNoCar, center = T, scale = T)
 master$zOc  <- scale(master$pcYesOc, center = T, scale = T)
 master$zTen <- scale(master$pcNoOo, center = T, scale = T)
@@ -173,31 +97,5 @@ master$quintile <- cut(master$z, breaks = 5)
 
 
 
-# Plot results ====
-map <- theme(line = element_blank(), 
-             text = element_blank(), 
-             title = element_blank(),
-             panel.background = element_rect(fill = "transparent"),
-             legend.position = "none")
-mapl <- theme(line = element_blank(),
-              axis.text = element_blank(),
-              axis.title = element_blank(),
-              panel.background = element_rect(fill = "transparent"))
-port  <- c(5.39, 7.19)  # full-page LaTeX A4 body
-land <- c(5.39, 3.595)  # half-page LaTeX A4 body
-
-elad <- readOGR("shapes/ewlad", "englandWalesLADs")
-proj4string(elad) <- CRS("+init=epsg:27700")
-eladf <- fortify(elad, region = "code")
-eladf <- merge(eladf, elad, by.x = "id", by.y = "code")
-eladf <- merge(eladf, master, by.x = "id", by.y = "geography.code")
-ggplot() + 
-  geom_polygon(data = eladf, aes(long, lat, group = group, fill = quintile), 
-                        colour = "dark grey") +
-  scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#636363", 
-                               "#252525"),
-                    name = "Townsend Deprivation Quintile",
-                    labels = c("Least deprived quintile", "20-40%", "40-60%", 
-                               "60-80%", "Most deprived quintile")) +
-  coord_equal() + mapl
-ggsave("maps/townsend-ew-lad.pdf", width = land[1], height = land[2])
+# Export results ====
+write.csv(master, file = "townsend-dep-score.csv")

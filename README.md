@@ -55,7 +55,7 @@ Place these in the `data` folder.
 
 I’ve provided four example files from Nomis Web at the LAD (district/unitary) level, which you can use for testing or if this is the geography you want.
 
-Run the script file. This should produce one file - master.csv - which contains geography code, overall Townsend Score (*z*-score), and decile of deprivation for each geography in England and Wales. With the geography code this can then be imported in to GIS software and joined to appropriate Census boundary files.
+You can load the project using `townsend-depr-score-2011.Rproj` if you use RStudio. Either way, run the script file in `/scripts`. This should produce one file - master.csv - which contains geography code, overall Townsend Score (*z*-score), and decile of deprivation for each geography in England and Wales. With the geography code this can then be imported in to GIS software and joined to appropriate Census boundary files.
 
 License
 ===============

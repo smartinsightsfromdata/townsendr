@@ -1,6 +1,9 @@
 .Rproj.user
 .Rhistory
 .RData
+.Rapp.history
 /maps
 /shapes
 *.pdf
+.gitignore~
+

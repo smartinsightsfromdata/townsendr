@@ -19,6 +19,7 @@
 
 
 # Packages ====
+require("reshape2")
 require("dplyr")
 
 
@@ -47,31 +48,34 @@ rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
 # Percentage of households overcrowded (more than 1 person per room)
 ovc <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_541_1.data.csv?GEOGRAPHY=TYPE464&RURAL_URBAN=0&C_PPROOMHUK11=3,4&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_PPROOMHUK11_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
+GEOGRAPHY_NAME <- unique(ovc$GEOGRAPHY_NAME)
+GEOGRAPHY_CODE <- unique(ovc$GEOGRAPHY_CODE)
+OBS_VALUE <- lapply(as.list(GEOGRAPHY_CODE), function(x){
+  sum(ovc$OBS_VALUE[ovc$GEOGRAPHY_CODE == x])
+})
+OBS_VALUE <- as.double(OBS_VALUE)
+ovc <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+ovc <- arrange(ovc, GEOGRAPHY_CODE)
+rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
 
-oc <- read.csv("data/oc.csv", header = T)
-oc <- subset(oc, Rural.Urban == "Total")
-oc$yesOc <- rowSums(oc[, 8:9])
-oc$noOc  <- rowSums(oc[, 6:7])
-colnames(oc)[5] <- "allHh"
-oc$pcYesOc <- (oc$yesOc / oc$allHh) * 100
-oc <- subset(oc, select = c("geography.code", "pcYesOc"))
+# Percentage of households not owner-occupied. Shared ownership not included)
+ten <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_537_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/C_TENHUK11/4,5,8,13/MEASURES/20301/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_TENHUK11_NAME,OBS_VALUE",
+                header = TRUE, stringsAsFactors = FALSE)
+GEOGRAPHY_NAME <- unique(ten$GEOGRAPHY_NAME)
+GEOGRAPHY_CODE <- unique(ten$GEOGRAPHY_CODE)
+OBS_VALUE <- lapply(as.list(GEOGRAPHY_CODE), function(x){
+  sum(ten$OBS_VALUE[ten$GEOGRAPHY_CODE == x])
+})
+OBS_VALUE <- as.double(OBS_VALUE)
+ten <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+ten <- arrange(ten, GEOGRAPHY_CODE)
+rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
 
-# Tenure (not owner-occupied. Shared ownership not included in O-O)
-ten <- read.csv("data/tenure.csv", header = T)
-ten <- subset(ten, Rural.Urban == "Total")
-colnames(ten)[5] <- "allHh"
-colnames(ten)[6] <- "yesOo" # Does not include shared ownership
-colnames(ten)[9] <- "shared"
-colnames(ten)[10] <- "social"
-colnames(ten)[13] <- "private"
-colnames(ten)[ncol(ten)] <- "free"
-ten <- subset(ten, select = c("geography.code", "allHh", "yesOo", "shared", 
-                               "social", "private", "free"))
-ten$noOo <- rowSums(ten[, 4:7])
-ten$pcNoOo <- (ten$noOo / ten$allHh) * 100
-ten <- subset(ten, select = c("geography.code", "pcNoOo"))
+# Percent of individuals economically active unemployed (Census table QS601EW)
+eau <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_556_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/CELL/1,8/MEASURES/20301/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
+                header = TRUE, stringsAsFactors = FALSE)
 
-# Economically active unemployed (Census table QS601EW)
+
 eau <- read.csv("data/unemp.csv", header = T)
 eau <- subset(eau, Rural.Urban == "Total")
 # Use all econ active residents, NOT all persons (see Townsend 1988: 36)

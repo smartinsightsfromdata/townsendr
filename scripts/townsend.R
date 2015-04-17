@@ -74,15 +74,11 @@ rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
 # Percent of individuals economically active unemployed (Census table QS601EW)
 eau <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_556_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/CELL/1,8/MEASURES/20301/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
+GEOGRAPHY_CODE <- unique(eau$GEOGRAPHY_CODE)
+GEOGRAPHY_NAME <- unique(eau$GEOGRAPHY_NAME)
 
 
-eau <- read.csv("data/unemp.csv", header = T)
-eau <- subset(eau, Rural.Urban == "Total")
 # Use all econ active residents, NOT all persons (see Townsend 1988: 36)
-colnames(eau)[6] <- "allEconAct"
-colnames(eau)[13] <- "yesUnemp"
-eau$pceau <- (eau$yesUnemp / eau$allEconAct) * 100
-eau <- subset(eau, select = c("geography.code", "pceau"))
 
               
               

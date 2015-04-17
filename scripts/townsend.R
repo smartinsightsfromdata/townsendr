@@ -28,11 +28,10 @@ require("dplyr")
 #                    persons per room
 #                    tenure, and
 #                    unemployment
-# These can be at any geography desired (e.g. LSOA, MSOA, ward, LAD, etc)
 # These can be obtained from Nomis Web's API
 # API documentation: https://www.nomisweb.co.uk/api/v01/help
 
-# Car or van access
+# Percentage of households with access to a light vehicle
 car <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_548_1.data.csv?geography=TYPE464&RURAL_URBAN=0&CELL=2,3,4,5&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
 GEOGRAPHY_NAME <- unique(car$GEOGRAPHY_NAME)
@@ -45,15 +44,10 @@ car <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
 car <- arrange(car, GEOGRAPHY_CODE)
 rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
 
+# Percentage of households overcrowded (more than 1 person per room)
+ovc <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_541_1.data.csv?GEOGRAPHY=TYPE464&RURAL_URBAN=0&C_PPROOMHUK11=3,4&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_PPROOMHUK11_NAME,OBS_VALUE",
+                header = TRUE, stringsAsFactors = FALSE)
 
-car <- subset(car, Rural.Urban == "Total")
-car$yesCar <- rowSums(car[, 7:10])
-colnames(car)[5] <- "allHh"
-colnames(car)[6] <- "noCar"
-car$pcNoCar <- (car$noCar / car$allHh) * 100
-car <- subset(car, select = c("geography.code", "pcNoCar"))
-
-# Overcrowding (more than one person per room (NOT bedroom!))
 oc <- read.csv("data/oc.csv", header = T)
 oc <- subset(oc, Rural.Urban == "Total")
 oc$yesOc <- rowSums(oc[, 8:9])

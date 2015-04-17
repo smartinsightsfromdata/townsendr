@@ -18,15 +18,34 @@
 
 
 
+# Packages ====
+require("dplyr")
+
+
+
 # Prepare Data ====
-
-# Read in files for car access, persons per room, tenure, and unemp
+# Read in files for: car or van access
+#                    persons per room
+#                    tenure, and
+#                    unemployment
 # These can be at any geography desired (e.g. LSOA, MSOA, ward, LAD, etc)
-# These can be obtained from Nomis Web's Census table finder:
-# http://www.nomisweb.co.uk/census/2011/data_finder
+# These can be obtained from Nomis Web's API
+# API documentation: https://www.nomisweb.co.uk/api/v01/help
 
-# Car Access
-car <- read.csv("data/car.csv", header = T)
+# Car or van access
+car <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_548_1.data.csv?geography=TYPE464&RURAL_URBAN=0&CELL=2,3,4,5&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
+                header = TRUE, stringsAsFactors = FALSE)
+GEOGRAPHY_NAME <- unique(car$GEOGRAPHY_NAME)
+GEOGRAPHY_CODE <- unique(car$GEOGRAPHY_CODE)
+OBS_VALUE <- lapply(as.list(GEOGRAPHY_CODE), function(x){
+  sum(car$OBS_VALUE[car$GEOGRAPHY_CODE == x])
+})
+OBS_VALUE <- as.double(OBS_VALUE)
+car <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+car <- arrange(car, GEOGRAPHY_CODE)
+rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+
+
 car <- subset(car, Rural.Urban == "Total")
 car$yesCar <- rowSums(car[, 7:10])
 colnames(car)[5] <- "allHh"

@@ -19,8 +19,8 @@
 
 
 # Packages ====
-require("reshape2")
 require("dplyr")
+require("reshape2")
 
 
 
@@ -35,47 +35,29 @@ require("dplyr")
 # Percentage of households with access to a light vehicle
 car <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_548_1.data.csv?geography=TYPE464&RURAL_URBAN=0&CELL=2,3,4,5&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
-GEOGRAPHY_NAME <- unique(car$GEOGRAPHY_NAME)
-GEOGRAPHY_CODE <- unique(car$GEOGRAPHY_CODE)
-OBS_VALUE <- lapply(as.list(GEOGRAPHY_CODE), function(x){
-  sum(car$OBS_VALUE[car$GEOGRAPHY_CODE == x])
-})
-OBS_VALUE <- as.double(OBS_VALUE)
-car <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
-car <- arrange(car, GEOGRAPHY_CODE)
-rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+car <- tbl_df(car)
+car <- dcast(car, GEOGRAPHY_CODE ~ CELL_NAME)
 
 # Percentage of households overcrowded (more than 1 person per room)
 ovc <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_541_1.data.csv?GEOGRAPHY=TYPE464&RURAL_URBAN=0&C_PPROOMHUK11=3,4&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_PPROOMHUK11_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
-GEOGRAPHY_NAME <- unique(ovc$GEOGRAPHY_NAME)
-GEOGRAPHY_CODE <- unique(ovc$GEOGRAPHY_CODE)
-OBS_VALUE <- lapply(as.list(GEOGRAPHY_CODE), function(x){
-  sum(ovc$OBS_VALUE[ovc$GEOGRAPHY_CODE == x])
-})
-OBS_VALUE <- as.double(OBS_VALUE)
-ovc <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
-ovc <- arrange(ovc, GEOGRAPHY_CODE)
-rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+ovc <- dcast(ovc, GEOGRAPHY_CODE ~ C_PPROOMHUK11_NAME)
 
 # Percentage of households not owner-occupied. Shared ownership not included)
 ten <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_537_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/C_TENHUK11/4,5,8,13/MEASURES/20301/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_TENHUK11_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
-GEOGRAPHY_NAME <- unique(ten$GEOGRAPHY_NAME)
-GEOGRAPHY_CODE <- unique(ten$GEOGRAPHY_CODE)
-OBS_VALUE <- lapply(as.list(GEOGRAPHY_CODE), function(x){
-  sum(ten$OBS_VALUE[ten$GEOGRAPHY_CODE == x])
-})
-OBS_VALUE <- as.double(OBS_VALUE)
-ten <- data.frame(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
-ten <- arrange(ten, GEOGRAPHY_CODE)
-rm(GEOGRAPHY_CODE, GEOGRAPHY_NAME, OBS_VALUE)
+ten <- dcast(ten, GEOGRAPHY_CODE ~ C_TENHUK11_NAME)
 
 # Percent of individuals economically active unemployed (Census table QS601EW)
-eau <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_556_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/CELL/1,8/MEASURES/20301/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
+eau <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_556_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/CELL/1,8/MEASURES/20100/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
-GEOGRAPHY_CODE <- unique(eau$GEOGRAPHY_CODE)
-GEOGRAPHY_NAME <- unique(eau$GEOGRAPHY_NAME)
+eau <- tbl_df(eau)
+eau <- dcast(eau, GEOGRAPHY_CODE ~ CELL_NAME)
+
+  
+
+
+
 
 
 # Use all econ active residents, NOT all persons (see Townsend 1988: 36)

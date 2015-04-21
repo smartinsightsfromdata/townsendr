@@ -37,41 +37,40 @@ car <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_548_1.data.csv?geo
                 header = TRUE, stringsAsFactors = FALSE)
 car <- tbl_df(car)
 car <- dcast(car, GEOGRAPHY_CODE ~ CELL_NAME)
+car$car <- rowSums(car[, 2:length(car)])
+car <- select(car, GEOGRAPHY_CODE, car)
 
 # Percentage of households overcrowded (more than 1 person per room)
 ovc <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_541_1.data.csv?GEOGRAPHY=TYPE464&RURAL_URBAN=0&C_PPROOMHUK11=3,4&MEASURES=20301&select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_PPROOMHUK11_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
 ovc <- tbl_df(ovc)
 ovc <- dcast(ovc, GEOGRAPHY_CODE ~ C_PPROOMHUK11_NAME)
+ovc$ovc <- rowSums(ovc[, 2:length(ovc)])
+ovc <- select(ovc, GEOGRAPHY_CODE, ovc)
 
 # Percentage of households not owner-occupied. Shared ownership not included)
 ten <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_537_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/C_TENHUK11/4,5,8,13/MEASURES/20301/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,C_TENHUK11_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
 ten <- tbl_df(ten)
 ten <- dcast(ten, GEOGRAPHY_CODE ~ C_TENHUK11_NAME)
+ten$ten <- rowSums(ten[, 2:length(ten)])
+ten <- select(ten, GEOGRAPHY_CODE, ten)
 
 # Percent of individuals economically active unemployed (Census table QS601EW)
 eau <- read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_556_1/GEOGRAPHY/2092957703TYPE464/RURAL_URBAN/0/CELL/1,8/MEASURES/20100/data.csv?select=GEOGRAPHY_NAME,GEOGRAPHY_CODE,CELL_NAME,OBS_VALUE",
                 header = TRUE, stringsAsFactors = FALSE)
 eau <- tbl_df(eau)
 eau <- dcast(eau, GEOGRAPHY_CODE ~ CELL_NAME)
+eau$eau <- (eau[[3]] / eau[[2]]) * 100
+  # Use all econ active residents, NOT all persons, as denominator (p36)
+eau <- select(eau, GEOGRAPHY_CODE, eau)
 
-
-
-
-
-
-
-
-# Use all econ active residents, NOT all persons (see Townsend 1988: 36)
-
-              
-              
-# Create Master File ====
-
-master <- merge(car, oc, by = "geography.code")
-master <- merge(master, ten, by = "geography.code")
-master <- merge(master, eau,  by = "geography.code")
+# Merge in to one file
+td <- car
+td <- left_join(td, eau, by = "GEOGRAPHY_CODE")
+td <- left_join(td, ovc, by = "GEOGRAPHY_CODE")
+td <- left_join(td, ten, by = "GEOGRAPHY_CODE")
+rm(car, eau, ovc, ten)
 
 
 

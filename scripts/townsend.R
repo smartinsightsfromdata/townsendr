@@ -22,6 +22,7 @@
 require("dplyr")
 require("reshape2")
 require("ggplot2")
+require("rgdal")
 
 
 
@@ -94,10 +95,15 @@ td$quintile <- cut(td$z, breaks = 5)
 
 
 # Plot results ====
+# Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
+# shapes from http://census.edina.ac.uk/easy_download.html
 download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
               destfile = "shapes/elad")  # 25MB
 download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
               destfile = "shapes/wlad")  # 3MB
+unzip("shapes/elad", overwrite = TRUE)
+unzip("shapes/wlad", overwrite = TRUE)
+
 
 
 # Export results ====

@@ -20,9 +20,10 @@
 
 # Packages ====
 require("dplyr")
-require("reshape2")
+require("reshape2")  # for dcast()
 require("ggplot2")
-require("rgdal")
+require("rgdal")     # for readOGR etc
+require("rgeos")     # for fortifying ggplot2 data
 
 
 
@@ -90,21 +91,38 @@ td$z <- rowSums(td[c("zCar", "zOvc", "zTen", "zEau")])
 td <- select(td, GEOGRAPHY_CODE, z)
 
 # Bin into quintiles
-td$quintile <- cut(td$z, breaks = 5)
+td$cut <- cut(td$z, breaks = 10, labels = FALSE)
 
 
 
-# Plot results ====
-# Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
-# shapes from http://census.edina.ac.uk/easy_download.html
-download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
-              destfile = "shapes/elad")  # 25MB
-download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
-              destfile = "shapes/wlad")  # 3MB
-unzip("shapes/elad", overwrite = TRUE)
-unzip("shapes/wlad", overwrite = TRUE)
+## Plot results ====
+## Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
+## shapes from http://census.edina.ac.uk/easy_download.html
+# download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
+#              destfile = "shapes/elad")  # 25MB
+# download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
+#              destfile = "shapes/wlad")  # 3MB
+# unzip("shapes/elad", overwrite = TRUE, exdir = "shapes/")
+# unzip("shapes/wlad", overwrite = TRUE, exdir = "shapes/")
 
+# Load shapefiles
+elad <- readOGR(dsn = "shapes/", "England_lad_2011")
+wlad <- readOGR(dsn = "shapes/", "Wales_lad_2011")
+elad$NAME <- as.character(elad$NAME)
+wlad$NAME <- as.character(wlad$NAME)
 
+# Merge in z score/cuts
+td <- rename(td, CODE = GEOGRAPHY_CODE)  # rename for inner_join
+elad@data <- inner_join(elad@data, td, by = "CODE")
+wlad@data <- inner_join(wlad@data, td, by = "CODE")
+rm(td)
+
+# Fortify for ggplot2
+eladf <- fortify(elad, region = "CODE")
+eladf <- merge(eladf, elad, by.x = "id", by.y = "CODE")
+
+ggplot() + 
+  geom_polygon(data = eladf, aes(x = long, y = lat, group = group, fill = cut))
 
 # Export results ====
-write.csv(td, file = "townsend-dep-score.csv")
+# write.csv(td, file = "townsend-dep-score.csv")

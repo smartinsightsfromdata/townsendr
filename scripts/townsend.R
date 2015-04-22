@@ -21,6 +21,7 @@
 # Packages ====
 require("dplyr")
 require("reshape2")
+require("ggplot2")
 
 
 
@@ -75,24 +76,29 @@ rm(car, eau, ovc, ten)
 
 
 # Z-scores ====
-
 # Calculate z-score
-master$zCar <- scale(master$pcNoCar, center = T, scale = T)
-master$zOc  <- scale(master$pcYesOc, center = T, scale = T)
-master$zTen <- scale(master$pcNoOo, center = T, scale = T)
-master$zEau <- scale(master$pceau, center = T, scale = T)
+td$zCar <- scale(td$car, center = T, scale = T)
+td$zOvc  <- scale(td$ovc, center = T, scale = T)
+td$zTen <- scale(td$ten, center = T, scale = T)
+td$zEau <- scale(td$eau, center = T, scale = T)
 
 # Combine z-scores in to one score
-master$z <- rowSums(master[c("zCar", "zOc", "zTen", "zEau")])
+td$z <- rowSums(td[c("zCar", "zOvc", "zTen", "zEau")])
 
 # Drop unnecessary items
-master <- subset(master, select = c("geography.code", "z"))
-rm(car, eau, oc, ten)
+td <- select(td, GEOGRAPHY_CODE, z)
 
 # Bin into quintiles
-master$quintile <- cut(master$z, breaks = 5)
+td$quintile <- cut(td$z, breaks = 5)
 
+
+
+# Plot results ====
+download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
+              destfile = "shapes/elad")  # 25MB
+download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
+              destfile = "shapes/wlad")  # 3MB
 
 
 # Export results ====
-write.csv(master, file = "townsend-dep-score.csv")
+write.csv(td, file = "townsend-dep-score.csv")

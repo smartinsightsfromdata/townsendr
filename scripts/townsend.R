@@ -24,6 +24,7 @@ require("reshape2")  # for dcast()
 require("ggplot2")
 require("rgdal")     # for readOGR etc
 require("rgeos")     # for fortifying ggplot2 data
+require("RCurl")     # to source from gist
 
 
 
@@ -79,10 +80,10 @@ rm(car, eau, ovc, ten)
 
 # Z-scores ====
 # Calculate z-score
-td$zCar <- scale(td$car, center = T, scale = T)
-td$zOvc  <- scale(td$ovc, center = T, scale = T)
-td$zTen <- scale(td$ten, center = T, scale = T)
-td$zEau <- scale(td$eau, center = T, scale = T)
+td$zCar <- scale(td$car, center = TRUE, scale = TRUE)
+td$zOvc <- scale(td$ovc, center = TRUE, scale = TRUE)
+td$zTen <- scale(td$ten, center = TRUE, scale = TRUE)
+td$zEau <- scale(td$eau, center = TRUE, scale = TRUE)
 
 # Combine z-scores in to one score
 td$z <- rowSums(td[c("zCar", "zOvc", "zTen", "zEau")])
@@ -95,9 +96,9 @@ td$cut <- cut(td$z, breaks = 10, labels = FALSE)
 
 
 
-## Plot results ====
-## Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
-## shapes from http://census.edina.ac.uk/easy_download.html
+# # Plot results ====
+# # Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
+# # shapes from http://census.edina.ac.uk/easy_download.html
 # download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
 #              destfile = "shapes/elad")  # 25MB
 # download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
@@ -107,7 +108,9 @@ td$cut <- cut(td$z, breaks = 10, labels = FALSE)
 
 # Load shapefiles
 elad <- readOGR(dsn = "shapes/", "England_lad_2011")
+proj4string(elad) <- CRS("+init=epsg:27700")
 wlad <- readOGR(dsn = "shapes/", "Wales_lad_2011")
+proj4string(wlad) <- CRS("+init=epsg:27700")
 elad$NAME <- as.character(elad$NAME)
 wlad$NAME <- as.character(wlad$NAME)
 
@@ -120,9 +123,26 @@ rm(td)
 # Fortify for ggplot2
 eladf <- fortify(elad, region = "CODE")
 eladf <- merge(eladf, elad, by.x = "id", by.y = "CODE")
+wladf <- fortify(wlad, region = "CODE")
+wladf <- merge(wladf, wlad, by.x = "id", by.y = "CODE")
+
+# Obtain map theme
+eval(
+  expr = parse(
+    text = getURL("https://gist.githubusercontent.com/philmikejones/d1f0aa148ac9fd1cf4b3/raw/c33fe017b055ad38fc33eedd9bc87b4f8b87374e/rMapGgplotTheme.R",
+                  ssl.verifypeer=FALSE)
+    )
+  )
 
 ggplot() + 
-  geom_polygon(data = eladf, aes(x = long, y = lat, group = group, fill = cut))
+  geom_polygon(data = eladf, aes(x = long, y = lat, 
+                                 group = group, fill = cut)) +
+  geom_polygon(data = wladf, aes(x = long, y = lat,
+                                 group = group, fill = cut)) +
+  coord_equal() +
+  mapp
+ggsave(filename = "ewtowndep.pdf", path = "maps/", 
+       width = port[1], height = port[2])
 
 # Export results ====
 # write.csv(td, file = "townsend-dep-score.csv")

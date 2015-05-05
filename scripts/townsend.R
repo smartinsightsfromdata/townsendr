@@ -24,7 +24,6 @@ require("reshape2")  # for dcast()
 require("ggplot2")
 require("rgdal")     # for readOGR etc
 require("rgeos")     # for fortifying ggplot2 data
-require("RCurl")     # to source from gist
 
 
 
@@ -91,9 +90,8 @@ td$z <- rowSums(td[c("zCar", "zOvc", "zTen", "zEau")])
 # Drop unnecessary items
 td <- select(td, GEOGRAPHY_CODE, z)
 
-# Bin into quintiles
-td$cut <- cut(td$z, breaks = 10, labels = FALSE)
-
+# Bin into cuts
+td$cut <- cut(td$z, breaks = 5, labels = FALSE)
 
 
 # # Plot results ====
@@ -126,23 +124,38 @@ eladf <- merge(eladf, elad, by.x = "id", by.y = "CODE")
 wladf <- fortify(wlad, region = "CODE")
 wladf <- merge(wladf, wlad, by.x = "id", by.y = "CODE")
 
-# Obtain map theme
-eval(
-  expr = parse(
-    text = getURL("https://gist.githubusercontent.com/philmikejones/d1f0aa148ac9fd1cf4b3/raw/c33fe017b055ad38fc33eedd9bc87b4f8b87374e/rMapGgplotTheme.R",
-                  ssl.verifypeer=FALSE)
-    )
-  )
+# Map themes for ggplot2
+# Obtained from https://goo.gl/0lLhZk
+# Portrait
+mapp <- theme(line = element_blank(),  # removes grid lines from plot
+              axis.text = element_blank(),
+              axis.title = element_blank(),
+              # title = element_blank(),  # removes title from legend
+              panel.background = element_rect(fill = "transparent"))
+# Landscape
+mapl <- theme(line = element_blank(),  # removes grid lines from plot
+              axis.text = element_blank(),
+              axis.title = element_blank(),
+              # title = element_blank(),  # removes title from legend
+              panel.background = element_rect(fill = "transparent"))
+
+# Paper sizes
+port <- c(29.7/2.54, 42/2.54)
+land <- c(42/2.54, 29.7/2.54)
+
 
 ggplot() + 
   geom_polygon(data = eladf, aes(x = long, y = lat, 
-                                 group = group, fill = cut)) +
+                                 group = group, fill = cut),
+               colour = "dark grey", size = 0.1) +
   geom_polygon(data = wladf, aes(x = long, y = lat,
-                                 group = group, fill = cut)) +
+                                 group = group, fill = cut),
+               colour = "dark grey", size = 0.1) +
   coord_equal() +
+  scale_fill_continuous(name = "Deprivation quintile\n
+(Highest is most deprived)") +
   mapp
-ggsave(filename = "ewtowndep.pdf", path = "maps/", 
-       width = port[1], height = port[2])
 
-# Export results ====
-# write.csv(td, file = "townsend-dep-score.csv")
+# export map
+ggsave(filename = "ewTownDep.pdf", path = "maps", 
+       width = port[1], height = port[2])

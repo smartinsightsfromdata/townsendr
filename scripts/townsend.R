@@ -143,7 +143,6 @@ mapl <- theme(line = element_blank(),  # removes grid lines from plot
 port <- c(29.7/2.54, 42/2.54)
 land <- c(42/2.54, 29.7/2.54)
 
-
 ggplot() + 
   geom_polygon(data = eladf, aes(x = long, y = lat, 
                                  group = group, fill = cut),
@@ -156,6 +155,8 @@ ggplot() +
 (Highest is most deprived)") +
   mapp
 
+
 # export map
 ggsave(filename = "ewTownDep.pdf", path = "maps", 
        width = port[1], height = port[2])
+

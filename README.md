@@ -17,51 +17,49 @@ Because of the way the score is combined, only the relative rank of the scores
 is meaningful. In practice, this means it is possible to say an area is more or
 less deprived than another, but not what ‘amount’ of deprivation it experiences.
 For this reason it is common to create a score based on a national dataset. This
-script uses data from England and Wales, as Scotland and Northern Ireland tables
-were not available at the time of publication (February 2014). Thus, the scores
-reflect the relative deprivation based on England and Wales.
+script uses data from England and Wales (Scotland and Northern Ireland tables
+were not available at the time of publication (February 2014)). Thus, the scores
+reflect the relative deprivation of an area based on similar areas in England
+and Wales.
 
 Purpose
 ===============
 
-This R script is to prepare the Census data:
+This R script:
 
-1. Load in Census tables and convert them in to usable form.
-2. Convert the four domains in to z-scores so they can be combined.
-3. Combine the *z*-scores to form one overall index.
-4. Rank the scores and produce deciles.
+1. Loads in Census tables and converts them in to usable form (LAD by default)
+2. Converts the four domains in to z-scores so they can be combined.
+3. Combines the *z*-scores to form one overall index.
+4. Rank the scores and produce deciles (quintiles by default).
+5. Obtains shapefiles for plotting *z*-scores (LADs by default)
 
 Using the Script
 ================
 
 [Download the repository as a zip](https://github.com/philmikejones/townsend-depr-score-2011/archive/master.zip) or, if you know what you're doing, make a fork.
 
-You need four data tables, one for each domain of deprivation, at the geographical level you’re interested in (LSOA, Ward, etc.). They’ll probably 
-all be called `bulk.csv` when you download them, so rename these:
+Load the project in RStudio using `townsend-depr-score-2011.Rproj` which is in the root. If you don't use RStudio set your working directory to the root of the folder with `setwd()`.
 
-1. `car.csv`
-2. `oc.csv` (overcrowd)
-3. `tenure.csv`
-4. `unemp.csv`
+If you want scores for LADs just run the script `scripts/townsend.R`
 
-These can be obtained from:
+If you want a geography other than LAD (for example LSOA, MSOA, region) you need
+to modify the Nomis web API calls on lines:
 
-1. [QS416EW](http://www.nomisweb.co.uk/census/2011/qs416ew) (car)
-2. [QS409EW](http://www.nomisweb.co.uk/census/2011/qs409ew) (persons per room)
-3. [QS405EW](http://www.nomisweb.co.uk/census/2011/qs405ew) (tenure)
-4. [QS601EW](http://www.nomisweb.co.uk/census/2011/qs601ew) (unemployment)
+39. (car)
+47. (overcrowding)
+55. (tenure)
+64. (economically active unemployed)
 
-Place these in the `data` folder.
+Documentation for the API is available from: `https://www.nomisweb.co.uk/api/v01/help`
 
-I’ve provided four example files from Nomis Web at the LAD (district/unitary) level, which you can use for testing or if this is the geography you want.
+You also need to obtain the link to the relevant shapefiles from `http://census.edina.ac.uk/easy_download.html`. In general, right-click on the geography you require and copy the link to paste in to the script.
 
-You can load the project using `townsend-depr-score-2011.Rproj` if you use RStudio. Either way, run the script file in `/scripts`. This should produce one file - master.csv - which contains geography code, overall Townsend Score (*z*-score), and decile of deprivation for each geography in England and Wales. With the geography code this can then be imported in to GIS software and joined to appropriate Census boundary files.
+Once complete the script should produce one file - `data/townsendScore.csv` - which contains geography code, overall Townsend Score (*z*-score), and quintile of deprivation for each geography in England and Wales which can be used in further analyses. It will also save a map to `maps/ewTownDep.pdf` for quick inspection.
 
 License
 ===============
 
 The code is GPL v3 license. See LICENSE.txt.
-The data (available from Nomis Web) is from the UK Census and is Crown Copyright. See census-copyright.txt
 
 Contact
 ===============

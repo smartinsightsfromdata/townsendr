@@ -161,4 +161,4 @@ ggsave(filename = "ewTownDep.pdf", path = "maps",
        width = port[1], height = port[2])
 
 # CSV
-write.csv(td, file = "data/lad-townsend-scores.csv")  # for use in GIS, etc.
+write.csv(td, file = "data/townsendScores.csv")  # for use in GIS, etc.

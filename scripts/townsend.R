@@ -130,9 +130,9 @@ wladf <- merge(wladf, wlad, by.x = "id", by.y = "CODE")
 eval(
   expr = parse(
     text = getURL("https://gist.githubusercontent.com/philmikejones/d1f0aa148ac9fd1cf4b3/raw/c33fe017b055ad38fc33eedd9bc87b4f8b87374e/rMapGgplotTheme.R",
-                  ssl.verifypeer=FALSE)
-    )
+                  ssl.verifypeer = FALSE)
   )
+)
 
 ggplot() + 
   geom_polygon(data = eladf, aes(x = long, y = lat, 
@@ -141,8 +141,9 @@ ggplot() +
                                  group = group, fill = cut)) +
   coord_equal() +
   mapp
-ggsave(filename = "ewtowndep.pdf", path = "maps/", 
+ggsave(filename = "ewTownDep.pdf", path = "maps/", 
        width = port[1], height = port[2])
+
 
 # Export results ====
 # write.csv(td, file = "townsend-dep-score.csv")

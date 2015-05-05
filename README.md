@@ -45,10 +45,10 @@ If you want scores for LADs just run the script `scripts/townsend.R`
 If you want a geography other than LAD (for example LSOA, MSOA, region) you need
 to modify the Nomis web API calls on lines:
 
-39. (car)
-47. (overcrowding)
-55. (tenure)
-64. (economically active unemployed)
+1. 39 (car)
+2. 47 (overcrowding)
+3. 55 (tenure)
+4. 64 (economically active unemployed)
 
 Documentation for the API is available from: `https://www.nomisweb.co.uk/api/v01/help`
 

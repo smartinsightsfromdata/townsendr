@@ -116,7 +116,6 @@ wlad$NAME <- as.character(wlad$NAME)
 td <- rename(td, CODE = GEOGRAPHY_CODE)  # rename for inner_join
 elad@data <- inner_join(elad@data, td, by = "CODE")
 wlad@data <- inner_join(wlad@data, td, by = "CODE")
-rm(td)
 
 # Fortify for ggplot2
 eladf <- fortify(elad, region = "CODE")
@@ -143,6 +142,10 @@ mapl <- theme(line = element_blank(),  # removes grid lines from plot
 port <- c(29.7/2.54, 42/2.54)
 land <- c(42/2.54, 29.7/2.54)
 
+
+
+# Outputs ====
+# Map
 ggplot() + 
   geom_polygon(data = eladf, aes(x = long, y = lat, 
                                  group = group, fill = cut),
@@ -154,9 +157,8 @@ ggplot() +
   scale_fill_continuous(name = "Deprivation quintile\n
 (Highest is most deprived)") +
   mapp
-
-
-# export map
 ggsave(filename = "ewTownDep.pdf", path = "maps", 
        width = port[1], height = port[2])
 
+# CSV
+write.csv(td, file = "data/lad-townsend-scores.csv")  # for use in GIS, etc.

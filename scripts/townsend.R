@@ -94,15 +94,15 @@ td <- select(td, GEOGRAPHY_CODE, z)
 td$cut <- cut(td$z, breaks = 5, labels = FALSE)
 
 
-# # Plot results ====
-# # Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
-# # shapes from http://census.edina.ac.uk/easy_download.html
-# download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
-#              destfile = "shapes/elad")  # 25MB
-# download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
-#              destfile = "shapes/wlad")  # 3MB
-# unzip("shapes/elad", overwrite = TRUE, exdir = "shapes/")
-# unzip("shapes/wlad", overwrite = TRUE, exdir = "shapes/")
+# Plot results ====
+# Obtain shapefiles. These are for LADs. Download appropriate prebuilt 
+# shapes from http://census.edina.ac.uk/easy_download.html
+download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/England_lad_2011.zip",
+             destfile = "shapes/elad")  # 25MB
+download.file("http://census.edina.ac.uk/ukborders/easy_download/prebuilt/shape/Wales_lad_2011.zip",
+             destfile = "shapes/wlad")  # 3MB
+unzip("shapes/elad", overwrite = TRUE, exdir = "shapes/")
+unzip("shapes/wlad", overwrite = TRUE, exdir = "shapes/")
 
 # Load shapefiles
 elad <- readOGR(dsn = "shapes/", "England_lad_2011")

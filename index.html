@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Townsend-depr-score-2011 by philmikejones</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Townsend-depr-score-2011</h1>
+      <h2 class="project-tagline">Townsend Material Deprivation Score - 2011 Data</h2>
+      <a href="https://github.com/philmikejones/townsend-depr-score-2011" class="btn">View on GitHub</a>
+      <a href="https://github.com/philmikejones/townsend-depr-score-2011/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/philmikejones/townsend-depr-score-2011/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h1>
+
+<p>The Townsend Material Deprivation score was originally devised by Townsend et al
+(1988). It is based on the following four Census variables:</p>
+
+<ol>
+<li>Percent of households without access to a car.</li>
+<li>Percent of households with more than one person per room.</li>
+<li>Percent of households not owner-occupied.</li>
+<li>Percent of individuals who are economically active unemployed.</li>
+</ol>
+
+<p>The four domains above are then combined to produce the overall Townsend Score.
+This score can be calculated for any geographical area that is available in the
+Census tables, for example LSOA, MSOA, Ward, LAD, etc.</p>
+
+<p>Because of the way the score is combined, only the relative rank of the scores
+is meaningful. In practice, this means it is possible to say an area is more or
+less deprived than another, but not what ‘amount’ of deprivation it experiences.
+For this reason it is common to create a score based on a national dataset. This
+script uses data from England and Wales (Scotland and Northern Ireland tables
+were not available at the time of publication (February 2014)). Thus, the scores
+reflect the relative deprivation of an area based on similar areas in England
+and Wales.</p>
+
+<h1>
+<a id="purpose" class="anchor" href="#purpose" aria-hidden="true"><span class="octicon octicon-link"></span></a>Purpose</h1>
+
+<p>This R script:</p>
+
+<ol>
+<li>Loads in Census tables and converts them in to usable form (LAD by default)</li>
+<li>Converts the four domains in to z-scores so they can be combined.</li>
+<li>Combines the <em>z</em>-scores to form one overall index.</li>
+<li>Rank the scores and produce deciles (quintiles by default).</li>
+<li>Obtains shapefiles for plotting <em>z</em>-scores (LADs by default)</li>
+</ol>
+
+<h1>
+<a id="using-the-script" class="anchor" href="#using-the-script" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the Script</h1>
+
+<p><a href="https://github.com/philmikejones/townsend-depr-score-2011/archive/master.zip">Download the repository as a zip</a> or, if you know what you're doing, make a fork.</p>
+
+<p>Load the project in RStudio using <code>townsend-depr-score-2011.Rproj</code> which is in the root. If you don't use RStudio set your working directory to the root of the folder with <code>setwd()</code>.</p>
+
+<p>If you want scores for LADs just run the script <code>scripts/townsend.R</code></p>
+
+<p>If you want a geography other than LAD (for example LSOA, MSOA, region) you need
+to modify the Nomis web API calls on lines:</p>
+
+<ol>
+<li>39 (car)</li>
+<li>47 (overcrowding)</li>
+<li>55 (tenure)</li>
+<li>64 (economically active unemployed)</li>
+</ol>
+
+<p>Documentation for the API is available from: <code>https://www.nomisweb.co.uk/api/v01/help</code></p>
+
+<p>You also need to obtain the link to the relevant shapefiles from <code>http://census.edina.ac.uk/easy_download.html</code>. In general, right-click on the geography you require and copy the link to paste in to the script.</p>
+
+<p>Once complete the script should produce one file - <code>data/townsendScore.csv</code> - which contains geography code, overall Townsend Score (<em>z</em>-score), and quintile of deprivation for each geography in England and Wales which can be used in further analyses. It will also save a map to <code>maps/ewTownDep.pdf</code> for quick inspection.</p>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h1>
+
+<p>The code is GPL v3 license. See LICENSE.txt.</p>
+
+<h1>
+<a id="contact" class="anchor" href="#contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contact</h1>
+
+<p>phil dot jones at sheffield dot ac dot uk (no spaces)</p>
+
+<h1>
+<a id="thanks-and-acknowledgements" class="anchor" href="#thanks-and-acknowledgements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Thanks and acknowledgements</h1>
+
+<p>Thanks to Robin Lovelace - <a href="https://github.com/Robinlovelace">https://github.com/Robinlovelace</a> - for having
+a once-over of the script and his suggestions.</p>
+
+<h1>
+<a id="references" class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+
+<p>Office for National Statistics, 2011 Census: Aggregate data (England and Wales) [computer file]. Downloaded from: <a href="http://www.nomisweb.co.uk/census/2011">http://www.nomisweb.co.uk/census/2011</a> [Accessed February 2014]. This information is licensed under the terms of the Open Government Licence [<a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2">http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2</a>].</p>
+
+<p>Office for National Statistics, 2011 Census: Digitised Boundary Data (England and Wales) [computer file]. UK Data Service Census Support. Downloaded from: <a href="http://edina.ac.uk/census">http://edina.ac.uk/census</a></p>
+
+<p>Townsend, Peter, Phillimore, Peter and Beattie, Alastair (1988) 'Health and Deprivation: Inequality and the North'. London: Croom Helm</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/philmikejones/townsend-depr-score-2011">Townsend-depr-score-2011</a> is maintained by <a href="https://github.com/philmikejones">philmikejones</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
